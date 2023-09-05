@@ -1,0 +1,19 @@
+# Ignore Build Files
+[Bb][Uu][Ii][Ll][Dd]/
+[Oo][Uu][Tt]/
+
+# Ignore generated files
+.vs/
+.cache/
+
+# Ignore binaries 
+*.o
+*.obj
+*.exe
+*.out
+
+# Ignore images
+*.ppm
+*.png
+*.jpg
+
