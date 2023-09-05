@@ -5,6 +5,7 @@
 # Ignore generated files
 .vs/
 .cache/
+*.swp
 
 # Ignore binaries 
 *.o
