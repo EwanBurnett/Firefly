@@ -54,6 +54,13 @@ namespace Firefly
             return *this;
         }
 
+        Vector3& operator *(const float rhs){
+            x *= rhs;
+            y *= rhs;
+            z *= rhs;
+        }
+
+
         float Length() const {
             return sqrtf(LengthSquared());
         }

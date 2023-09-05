@@ -5,6 +5,8 @@
 #include "../include/RNG.h"
 #include "../include/Exporter.h"
 #include "../include/Timer.h"
+#include "../include/Viewport.h"
+#include "../include/Camera.h"
 
 //USAGE
 //Firefly:
@@ -17,8 +19,8 @@ int main(int argc, char** argv)
     
     uint16_t width = 0;
     uint16_t height = 0;
-    char* fileName = __TIME__;
 
+    char* fileName = __TIME__;
 
     //Parse CMD arguments
     if(argc > 1){
@@ -43,6 +45,10 @@ int main(int argc, char** argv)
     if(height == 0){
         throw std::runtime_error("Height was 0!\n");
     }
+
+    //Initialize the Ray Tracer
+    Firefly::Viewport viewPort;
+    Firefly::Camera camera;
 
     uint32_t numPixels = (uint32_t)(width * height);
     printf("Rendering an Image [%dx%d] (%d pixels)\n", width, height, numPixels);
