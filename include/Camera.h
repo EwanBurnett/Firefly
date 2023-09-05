@@ -8,8 +8,12 @@ namespace Firefly{
     class Camera{
         public:
             Camera();
-            Camera(const Vector3& origin, const Viewport& viewPort, const float focalLength, const Vector3& upVector = {0.0f, 1.0f, 0.0f});
+            Camera(const Vector3& origin, const Viewport& viewPort, const float focalLength = 1.0f, const Vector3& upVector = {0.0f, 1.0f, 0.0f});
 
+            Vector3 GetPosition() const;
+            void SetPosition(const Vector3& position);
+
+            float GetFocalLength() const;
         private:
             Vector3 m_Position;
 
@@ -33,6 +37,19 @@ namespace Firefly{
         m_Viewport = viewPort;
         m_UpVector = upVector; //TODO: Find Right and Forwards vectors
 
+    }
+
+
+    inline Vector3 Camera::GetPosition() const{
+        return m_Position;
+    }
+
+    inline void Camera::SetPosition(const Vector3& position){
+        m_Position = position;
+    }
+
+    inline float Camera::GetFocalLength() const{
+        return m_FocalLength;
     }
 }
 

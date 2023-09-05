@@ -27,6 +27,13 @@ namespace Firefly
             return *this;
         }
 
+        Vector3& operator +(const float rhs){
+            x += rhs;
+            y += rhs;
+            z += rhs;
+            return *this;
+        }
+ 
         Vector3& operator -(const Vector3& rhs){
             x -= rhs.x;
             y -= rhs.y;

@@ -7,6 +7,8 @@
 #include "../include/Timer.h"
 #include "../include/Viewport.h"
 #include "../include/Camera.h"
+#include "../include/Ray3D.h"
+#include "../include/RayTracer.h"
 
 //USAGE
 //Firefly:
@@ -47,9 +49,17 @@ int main(int argc, char** argv)
     }
 
     //Initialize the Ray Tracer
-    Firefly::Viewport viewPort;
-    Firefly::Camera camera;
+    Firefly::Viewport viewport(width, height);
+    Firefly::Camera camera({0.0f, 0.0f, -100.0f}, viewport);
 
+    //Calculate the delta vectors for each pixel
+    Firefly::Vector3 pixelDeltaU = viewport.ViewportU() / width;
+    Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / height;
+    
+    //Calculate where the upper-left-most pixel is
+    Firefly::Vector3 originPixel = (viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + 0.5f) + (pixelDeltaU + pixelDeltaV);
+    
+    //Create the Image
     uint32_t numPixels = (uint32_t)(width * height);
     printf("Rendering an Image [%dx%d] (%d pixels)\n", width, height, numPixels);
 
@@ -62,14 +72,18 @@ int main(int argc, char** argv)
     //Render the Image
     for(int y = 0; y < height; y++){
         for(int x = 0; x < width; x++){
+            Firefly::Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
+            printf("Pixel Center: %f, %f, %f\n", pixelCenter.x, pixelCenter.y, pixelCenter.z);
+            Firefly::Vector3 rayDir = pixelCenter - camera.GetPosition(); 
+            Firefly::Ray3D ray(camera.GetPosition(), rayDir);
+
             Firefly::ColourRGBA* pColour = &img[(width * y) + x];
-            pColour->r = (uint8_t)(((float)y / (float)height) * 255.0f);
-            pColour->g = 64;
-            pColour->b = (uint8_t)(((float)x / (float)width) * 255.0f);
-            pColour->a = 255;
+            
+            auto rayColour = Firefly::RayColour(ray);
+            *pColour = rayColour; 
         }
 
-        pb.Advance();     
+       // pb.Advance();     
         timer.Tick();
     }
 
