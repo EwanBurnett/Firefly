@@ -58,6 +58,7 @@ int main(int argc, char** argv)
     
     //Calculate where the upper-left-most pixel is
     Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + (0.5f * (pixelDeltaU + pixelDeltaV)); 
+
     
     //Create the Image
     uint32_t numPixels = (uint32_t)(width * height);
@@ -71,6 +72,7 @@ int main(int argc, char** argv)
 
     //Render the Image
     for(int y = 0; y < height; y++){
+        //Process each Scanline
         for(int x = 0; x < width; x++){
             Firefly::Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
             Firefly::Vector3 rayDir = pixelCenter - camera.GetPosition(); 

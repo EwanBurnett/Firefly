@@ -9,7 +9,7 @@ namespace Firefly{
             Ray3D(); 
             Ray3D(const Vector3& origin, const Vector3& direction);
 
-            Vector3 At(float t);
+            Vector3 At(float t) const;
 
             Vector3 Origin() const;
             Vector3 Direction() const;
@@ -29,8 +29,9 @@ namespace Firefly{
         m_Direction = direction;
     }
 
-    inline Vector3 Ray3D::At(float t) {
-        return m_Origin + (m_Direction * t);
+    inline Vector3 Ray3D::At(float t) const {
+        Vector3 v = m_Origin + (m_Direction * t);
+        return v;
     }
     
     inline Vector3 Ray3D::Origin() const{
