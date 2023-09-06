@@ -10,20 +10,17 @@
 namespace Firefly{
     inline ColourRGBA RayColour(const Ray3D& ray){
         Vector3 dir = ray.Direction();
-        //dir = Vector3::Normalize(dir);
+        dir = Vector3::Normalize(dir);
 
-        printf("\ndir = %f, %f, %f", dir.x, dir.y, dir.z);
-        
-
-        auto a = 0.5f * (dir.y + 1.0f);
-        auto k = (1.0f - a);
-        auto c = ColourRGBA{255, 128, 196, 255};
+        auto k = 0.5f * (dir.y + 1.0f);
+        auto a = ColourRGBA{255, 255, 255, 255};
+        auto b = ColourRGBA{255, 128, 196, 255};
 
         return{
-            (uint8_t)(255.99 * (k * 1.0f + a * c.r)),
-            (uint8_t)(255.99 * (k * 1.0f + a * c.g)),
-            (uint8_t)(255.99 * (k * 1.0 + a * c.b)),
-            (uint8_t)(255.99 * (k * 1.0 + a * c.a))
+            (uint8_t)(255.99f * (1.0f - k) * a.r + k * b.r),
+            (uint8_t)(255.99f * (1.0f - k) * a.g + k * b.g),
+            (uint8_t)(255.99f * (1.0f - k) * a.b + k * b.b),
+            (uint8_t)(255.99f * (1.0f - k) * a.a + k * b.a),
         };
     }
 }

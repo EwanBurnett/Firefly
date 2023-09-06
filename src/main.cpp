@@ -53,11 +53,11 @@ int main(int argc, char** argv)
     Firefly::Camera camera({0.0f, 0.0f, -100.0f}, viewport);
 
     //Calculate the delta vectors for each pixel
-    Firefly::Vector3 pixelDeltaU = viewport.ViewportU() / width;
-    Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / height;
+    Firefly::Vector3 pixelDeltaU = viewport.ViewportU() / (float)width;
+    Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
     
     //Calculate where the upper-left-most pixel is
-    Firefly::Vector3 originPixel = (viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + 0.5f) + (pixelDeltaU + pixelDeltaV);
+    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + 0.5f * (pixelDeltaU + pixelDeltaV); //BUG: This calculation isn't being evaluated 
     
     //Create the Image
     uint32_t numPixels = (uint32_t)(width * height);
@@ -73,7 +73,6 @@ int main(int argc, char** argv)
     for(int y = 0; y < height; y++){
         for(int x = 0; x < width; x++){
             Firefly::Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
-            printf("Pixel Center: %f, %f, %f\n", pixelCenter.x, pixelCenter.y, pixelCenter.z);
             Firefly::Vector3 rayDir = pixelCenter - camera.GetPosition(); 
             Firefly::Ray3D ray(camera.GetPosition(), rayDir);
 
@@ -83,7 +82,7 @@ int main(int argc, char** argv)
             *pColour = rayColour; 
         }
 
-       // pb.Advance();     
+        pb.Advance();     
         timer.Tick();
     }
 
