@@ -50,14 +50,14 @@ int main(int argc, char** argv)
 
     //Initialize the Ray Tracer
     Firefly::Viewport viewport(width, height);
-    Firefly::Camera camera({0.0f, 0.0f, -100.0f}, viewport);
+    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, viewport);
 
     //Calculate the delta vectors for each pixel
     Firefly::Vector3 pixelDeltaU = viewport.ViewportU() / (float)width;
     Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
     
     //Calculate where the upper-left-most pixel is
-    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + 0.5f * (pixelDeltaU + pixelDeltaV); //BUG: This calculation isn't being evaluated 
+    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + 0.5f * (pixelDeltaU + pixelDeltaV); 
     
     //Create the Image
     uint32_t numPixels = (uint32_t)(width * height);

@@ -13,14 +13,14 @@ namespace Firefly{
         dir = Vector3::Normalize(dir);
 
         auto k = 0.5f * (dir.y + 1.0f);
-        auto a = ColourRGBA{255, 255, 255, 255};
+        auto a = ColourRGBA{190, 255, 65, 180};
         auto b = ColourRGBA{255, 128, 196, 255};
 
         return{
-            (uint8_t)(255.99f * (1.0f - k) * a.r + k * b.r),
-            (uint8_t)(255.99f * (1.0f - k) * a.g + k * b.g),
-            (uint8_t)(255.99f * (1.0f - k) * a.b + k * b.b),
-            (uint8_t)(255.99f * (1.0f - k) * a.a + k * b.a),
+            (uint8_t)(((1.0f - k) * a.r + k * b.r)),
+            (uint8_t)(((1.0f - k) * a.g + k * b.g)),
+            (uint8_t)(((1.0f - k) * a.b + k * b.b)),
+            (uint8_t)(((1.0f - k) * a.a + k * b.a)),
         };
     }
 }
