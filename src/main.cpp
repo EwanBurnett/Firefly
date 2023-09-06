@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
     
     //Calculate where the upper-left-most pixel is
-    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + 0.5f * (pixelDeltaU + pixelDeltaV); 
+    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + (0.5f * (pixelDeltaU + pixelDeltaV)); 
     
     //Create the Image
     uint32_t numPixels = (uint32_t)(width * height);
@@ -74,6 +74,7 @@ int main(int argc, char** argv)
         for(int x = 0; x < width; x++){
             Firefly::Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
             Firefly::Vector3 rayDir = pixelCenter - camera.GetPosition(); 
+            rayDir = Firefly::Vector3::Normalize(rayDir);
             Firefly::Ray3D ray(camera.GetPosition(), rayDir);
 
             Firefly::ColourRGBA* pColour = &img[(width * y) + x];

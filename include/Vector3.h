@@ -61,23 +61,23 @@ namespace Firefly
         }
 
 
-        Vector3::Vector3(){
+        inline Vector3::Vector3(){
             x = 0;
             y = 0;
             z = 0;
         }
 
-        Vector3::Vector3(float X, float Y, float Z){
+        inline Vector3::Vector3(float X, float Y, float Z){
             x = X;
             y = Y;
             z = Z;
         }
 
-        float Vector3::Length() const {
+        inline float Vector3::Length() const {
             return sqrtf(LengthSquared());
         }
 
-        float Vector3::LengthSquared() const{
+        inline float Vector3::LengthSquared() const{
             return ((x * x) + (y * y) + (z * z));
         }
 

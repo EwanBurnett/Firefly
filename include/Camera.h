@@ -27,16 +27,24 @@ namespace Firefly{
 
     inline Camera::Camera(){
 
+        m_Position = {0.0f, 0.0f, 0.0f};
+
         m_UpVector = {0.0f, 1.0f, 0.0f};
         m_RightVector = {1.0f, 0.0f, 0.0f};
         m_ForwardsVector = {0.0f, 0.0f, 1.0f}; //TODO: -Z Forwards?
+
+        m_FocalLength = 1.0f;
     }
 
     inline Camera::Camera(const Vector3& origin, const Viewport& viewPort, const float focalLength, const Vector3& upVector){
         m_Position = origin;
+
         m_Viewport = viewPort;
         m_UpVector = upVector; //TODO: Find Right and Forwards vectors
+        m_RightVector = {1.0f, 0.0f, 0.0f};
+        m_ForwardsVector = {0.0f, 0.0f, 1.0f}; //TODO: -Z Forwards?
 
+        m_FocalLength = focalLength;
     }
 
 
