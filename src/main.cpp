@@ -48,49 +48,12 @@ int main(int argc, char** argv)
         throw std::runtime_error("Height was 0!\n");
     }
 
-    //Initialize the Ray Tracer
-    Firefly::Viewport viewport(width, height);
-    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, viewport);
-
-    //Calculate the delta vectors for each pixel
-    Firefly::Vector3 pixelDeltaU = viewport.ViewportU() / (float)width;
-    Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
-    
-    //Calculate where the upper-left-most pixel is
-    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + (0.5f * (pixelDeltaU + pixelDeltaV)); 
-
     
     //Create the Image
     uint32_t numPixels = (uint32_t)(width * height);
     printf("Rendering an Image [%dx%d] (%d pixels)\n", width, height, numPixels);
 
     std::vector<Firefly::ColourRGBA> img(width * height);
-
-    Firefly::Timer timer;
-    timer.Start();
-    Firefly::ProgressBar pb(height, "Rendering Image...", 40);
-
-    //Render the Image
-    for(int y = 0; y < height; y++){
-        //Process each Scanline
-        for(int x = 0; x < width; x++){
-            Firefly::Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
-            Firefly::Vector3 rayDir = pixelCenter - camera.GetPosition(); 
-            rayDir = Firefly::Vector3::Normalize(rayDir);
-            Firefly::Ray3D ray(camera.GetPosition(), rayDir);
-
-            Firefly::ColourRGBA* pColour = &img[(width * y) + x];
-            
-            auto rayColour = Firefly::RayColour(ray);
-            *pColour = rayColour; 
-        }
-
-        pb.Advance();     
-        timer.Tick();
-    }
-
-    printf("\nImage Rendered in %fs!\n", timer.Get<std::chrono::milliseconds>() / 1000.0f);
-
     Firefly::Exporter::ExportToPPM(fileName, width, height, img);
     Firefly::Exporter::ExportToPNG(fileName, width, height, img);
 }
