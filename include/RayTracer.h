@@ -6,6 +6,7 @@
 #include "ColourRGBA.h"
 #include "Ray3D.h"
 
+#include "World.h"
 #include <cstdio>
 
 namespace Firefly{
@@ -37,21 +38,21 @@ namespace Firefly{
         return (discriminant >= 0.0f);
     }
 
-    inline ColourRGBA RayColour(const Ray3D& ray){
-        
-        float t = (HitSphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f, ray));
-        if(t > 0.0f){
-            Vector3 v = (ray.At(t) - Vector3(0.0f, 0.0f, -1.0f));
-            Vector3 N = Vector3::Normalize(v);
-            ColourRGBA c = {
-                (uint8_t)(255.99f * (0.5f * (N.x + 1))),
-                (uint8_t)(255.99f * (0.5f * (N.y + 1))),
-                (uint8_t)(255.99f * (0.5f * (N.z + 1))),
-                255
-            };
-            return c;
+    inline ColourRGBA RayColour(const Ray3D& ray, const World& world){
+        for(auto& obj : world.GetScene()){
+            float t = (HitSphere(obj->position, obj->radius, ray));
+            if(t > 0.0f){
+                Vector3 v = (ray.At(t) - Vector3(0.0f, 0.0f, -1.0f));
+                Vector3 N = Vector3::Normalize(v);
+                ColourRGBA c = {
+                    (uint8_t)(255.99f * (0.5f * (N.x + 1))),
+                    (uint8_t)(255.99f * (0.5f * (N.y + 1))),
+                    (uint8_t)(255.99f * (0.5f * (N.z + 1))),
+                    255
+                };
+                return c;
+            }
         }
-
         Vector3 dir = ray.Direction();
         auto k = 0.5f * (dir.y + 1.0f);
         auto a = ColourRGBA{0x9e, 0x33, 0x4a, 180};

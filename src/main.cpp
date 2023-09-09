@@ -9,6 +9,7 @@
 #include "../include/Camera.h"
 #include "../include/Ray3D.h"
 #include "../include/RayTracer.h"
+#include "../include/World.h"
 
 //USAGE
 //Firefly:
@@ -19,6 +20,9 @@ int main(int argc, char** argv)
 {
     printf("Firefly v%d.%da\n", FIREFLY_VERSION_MAJOR, FIREFLY_VERSION_MINOR);
     
+    Firefly::World world;
+    world.LoadFromFile("test.xml");
+
     uint16_t width = 0;
     uint16_t height = 0;
 
@@ -81,7 +85,7 @@ int main(int argc, char** argv)
 
             Firefly::ColourRGBA* pColour = &img[(width * y) + x];
             
-            auto rayColour = Firefly::RayColour(ray);
+            auto rayColour = Firefly::RayColour(ray, world);
             *pColour = rayColour; 
         }
 
