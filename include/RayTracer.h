@@ -42,17 +42,12 @@ namespace Firefly{
 
 
         char buffer[256];
-        sprintf(buffer, "Rending Image %s [%dx%d]\n", outputImage.Name().c_str(), width, height);
+        sprintf(buffer, "Rending Image %s [%dx%d]\t", outputImage.Name().c_str(), width, height);
         
         //Calculate the delta vectors for each pixel
         Viewport viewport = camera.GetViewport(); 
-        Vector3 pixelDeltaU = viewport.ViewportU() / (float)width;
-        Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
         
         //Calculate where the upper-left-most pixel is
-        Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + (0.5f * (pixelDeltaU + pixelDeltaV)); 
-
- 
         Firefly::Timer timer;
         timer.Start();
         Firefly::ProgressBar progressBar(height, buffer, 40);
@@ -61,7 +56,7 @@ namespace Firefly{
         for(int y = 0; y < height; y++){
             //Process each Scanline
             for(int x = 0; x < width; x++){
-                Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
+                Vector3 pixelCenter = camera.PixelOrigin(width, height) + (camera.PixelDeltaU(width) * x) + (camera.PixelDeltaV(height) * y);
                 Vector3 rayDir = pixelCenter - camera.GetPosition(); 
                 rayDir = Vector3::Normalize(rayDir);
                 Ray3D ray(camera.GetPosition(), rayDir);

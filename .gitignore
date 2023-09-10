@@ -6,6 +6,7 @@
 .vs/
 .cache/
 *.swp
+*.swo
 
 # Ignore binaries 
 *.o
