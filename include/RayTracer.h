@@ -83,10 +83,10 @@ namespace Firefly{
                     colour.a += rayColour.a;
                 }
 
-                colour.r /= scale;
-                colour.g /= scale;
-                colour.b /= scale;
-                colour.a /= scale;
+                colour.r *= scale;
+                colour.g *= scale;
+                colour.b *= scale;
+                colour.a *= scale;
                 
                 Interval iv(0.0f, 0.999f);
                 *pColour = ColourRGBA(
@@ -122,6 +122,7 @@ namespace Firefly{
         }
         
         Vector3 dir = ray.Direction();
+        
         auto k = 0.5f * (dir.y + 1.0f);
         Colour a = Colour(ColourRGBA{0x9e, 0x33, 0x4a, 180});
         Colour b = Colour(ColourRGBA{0x0d, 0x56, 0x9e, 255});
