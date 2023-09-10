@@ -14,6 +14,12 @@ namespace Firefly{
             void SetPosition(const Vector3& position);
 
             float GetFocalLength() const;
+            const Viewport& GetViewport() const;
+ 
+            Vector3 PixelDeltaU(const uint32_t width) const;
+            Vector3 PixelDeltaV(const uint32_t height) const; 
+            Vector3 PixelOrigin(const uint32_t width, const uint32_t height) const;        
+
         private:
             Vector3 m_Position;
 
@@ -58,6 +64,22 @@ namespace Firefly{
 
     inline float Camera::GetFocalLength() const{
         return m_FocalLength;
+    }
+
+    inline const Viewport& Camera::GetViewport() const{
+        return m_Viewport;
+    }
+
+    inline Vector3 Camera::PixelDeltaU(const uint32_t width) const{
+        return (m_Viewport.ViewportU() / (float)width);
+    }
+
+    inline Vector3 Camera::PixelDeltaV(const uint32_t height) const{
+        return (m_Viewport.ViewportV() / (float)height);
+    }
+
+    inline Vector3 Camera::PixelOrigin(const uint32_t width, const uint32_t height) const{
+        return m_Viewport.TopLeft(GetPosition(), GetFocalLength()) + (0.5f * (PixelDeltaU(width) + PixelDeltaV(height))); 
     }
 }
 

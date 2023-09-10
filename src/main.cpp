@@ -8,7 +8,9 @@
 #include "../include/Viewport.h"
 #include "../include/Camera.h"
 #include "../include/Ray3D.h"
+#include "../include/Image.h"
 #include "../include/RayTracer.h"
+#include "../include/World.h"
 
 //USAGE
 //Firefly:
@@ -19,10 +21,14 @@ int main(int argc, char** argv)
 {
     printf("Firefly v%d.%da\n", FIREFLY_VERSION_MAJOR, FIREFLY_VERSION_MINOR);
     
+
     uint16_t width = 0;
     uint16_t height = 0;
 
+    uint32_t numSamples = 1;
+
     char* fileName = __TIME__;
+    char* sceneFile = "";
 
     //Parse CMD arguments
     if(argc > 1){
@@ -38,6 +44,14 @@ int main(int argc, char** argv)
             else if(strcmp(argv[i], "-f") == 0){
                 fileName = argv[i + 1];
             }
+
+            else if(strcmp(argv[i], "-s") == 0){
+                sceneFile = argv[i + 1];
+            }
+
+            else if(strcmp(argv[i], "-a") == 0){
+                numSamples = atoi(argv[i + 1]);
+            }
         }        
     }
     
@@ -48,47 +62,22 @@ int main(int argc, char** argv)
         throw std::runtime_error("Height was 0!\n");
     }
 
-    //Initialize the Ray Tracer
-    Firefly::Viewport viewport(width, height);
-    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, viewport);
-
-    //Calculate the delta vectors for each pixel
-    Firefly::Vector3 pixelDeltaU = viewport.ViewportU() / (float)width;
-    Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
-    
-    //Calculate where the upper-left-most pixel is
-    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + (0.5f * (pixelDeltaU + pixelDeltaV)); 
-    
-    //Create the Image
-    uint32_t numPixels = (uint32_t)(width * height);
-    printf("Rendering an Image [%dx%d] (%d pixels)\n", width, height, numPixels);
-
-    std::vector<Firefly::ColourRGBA> img(width * height);
-
-    Firefly::Timer timer;
-    timer.Start();
-    Firefly::ProgressBar pb(height, "Rendering Image...", 40);
-
-    //Render the Image
-    for(int y = 0; y < height; y++){
-        for(int x = 0; x < width; x++){
-            Firefly::Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
-            Firefly::Vector3 rayDir = pixelCenter - camera.GetPosition(); 
-            rayDir = Firefly::Vector3::Normalize(rayDir);
-            Firefly::Ray3D ray(camera.GetPosition(), rayDir);
-
-            Firefly::ColourRGBA* pColour = &img[(width * y) + x];
-            
-            auto rayColour = Firefly::RayColour(ray);
-            *pColour = rayColour; 
-        }
-
-        pb.Advance();     
-        timer.Tick();
+    if(strcmp(sceneFile, "") == 0){
+        throw std::runtime_error("No Scene was Loaded!\nPlease Specify a Scene File with the -s [filepath] flag.\n");
     }
 
-    printf("\nImage Rendered in %fs!\n", timer.Get<std::chrono::milliseconds>() / 1000.0f);
+    if(numSamples < 1){
+        numSamples = 1;
+    }
 
-    Firefly::Exporter::ExportToPPM(fileName, width, height, img);
-    Firefly::Exporter::ExportToPNG(fileName, width, height, img);
+    Firefly::World world;
+    world.LoadFromFile(sceneFile);
+    Firefly::Viewport vp(width, height);
+    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, vp);
+    Firefly::Image img(width, height, fileName);
+    Firefly::RayTracer rt(10);
+    rt.Render(world, camera, img);
+
+    Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());
+    Firefly::Exporter::ExportToPNG(fileName, width, height, img.Pixels());
 }
