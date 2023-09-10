@@ -8,6 +8,7 @@
 #include "../include/Viewport.h"
 #include "../include/Camera.h"
 #include "../include/Ray3D.h"
+#include "../include/Image.h"
 #include "../include/RayTracer.h"
 #include "../include/World.h"
 
@@ -20,13 +21,12 @@ int main(int argc, char** argv)
 {
     printf("Firefly v%d.%da\n", FIREFLY_VERSION_MAJOR, FIREFLY_VERSION_MINOR);
     
-    Firefly::World world;
-    world.LoadFromFile("test.xml");
 
     uint16_t width = 0;
     uint16_t height = 0;
 
     char* fileName = __TIME__;
+    char* sceneFile = "";
 
     //Parse CMD arguments
     if(argc > 1){
@@ -42,6 +42,10 @@ int main(int argc, char** argv)
             else if(strcmp(argv[i], "-f") == 0){
                 fileName = argv[i + 1];
             }
+
+            else if(strcmp(argv[i], "-s") == 0){
+                sceneFile = argv[i + 1];
+            }
         }        
     }
     
@@ -52,6 +56,12 @@ int main(int argc, char** argv)
         throw std::runtime_error("Height was 0!\n");
     }
 
+    if(strcmp(sceneFile, "") == 0){
+        throw std::runtime_error("No Scene was Loaded!\nPlease Specify a Scene File with the -s [filepath] flag.\n");
+    }
+
+
+    /*
     //Initialize the Ray Tracer
     Firefly::Viewport viewport(width, height);
     Firefly::Camera camera({0.0f, 0.0f, 0.0f}, viewport);
@@ -95,6 +105,16 @@ int main(int argc, char** argv)
 
     printf("\nImage Rendered in %fs!\n", timer.Get<std::chrono::milliseconds>() / 1000.0f);
 
-    Firefly::Exporter::ExportToPPM(fileName, width, height, img);
-    Firefly::Exporter::ExportToPNG(fileName, width, height, img);
+    */
+
+    Firefly::World world;
+    world.LoadFromFile(sceneFile);
+    Firefly::Viewport vp(width, height);
+    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, vp);
+    Firefly::Image img(width, height, fileName);
+    Firefly::RayTracer rt;
+    rt.Render(world, camera, img);
+
+    Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());
+    Firefly::Exporter::ExportToPNG(fileName, width, height, img.Pixels());
 }

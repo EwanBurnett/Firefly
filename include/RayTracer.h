@@ -5,42 +5,84 @@
 #include "Vector3.h"
 #include "ColourRGBA.h"
 #include "Ray3D.h"
-
+#include "Image.h"
+#include "Camera.h"
 #include "World.h"
 #include <cstdio>
+#include "Progressbar.h"
+#include "Timer.h"
 
 namespace Firefly{
 
-    inline float HitSphere(const Vector3& center, float radius, const Ray3D& ray)
-    {
-        Vector3 oc = ray.Origin() - center;
+    class RayTracer{
 
-        //float a = Vector3::Dot(ray.Direction(), ray.Direction());
-        //float b = 2.0f * Vector3::Dot(oc, ray.Direction());
-        //float c = Vector3::Dot(oc, oc) - (radius * radius);
+        public:
+            RayTracer();
+            ~RayTracer();
 
-        //float discriminant = (b * b) - (4.0f * (a * c));
+            void Render(const World& world, const Camera& camera, Image& outputImage);
 
-        float a = ray.Direction().LengthSquared();
-        float half_b = Vector3::Dot(oc, ray.Direction());
-        float c = oc.LengthSquared() - (radius * radius);
-        float discriminant = (half_b * half_b) - a * c;
+        private:
+            ColourRGBA RayColour(const Ray3D& ray, const World& world);
+    };
 
-        if(discriminant < 0){
-            return -1.0f;
-        }
-        else{
-            //return (-b - sqrt(discriminant)) / (2.0f * a);
-            return (-half_b - sqrt(discriminant)) / a;
-        }
-        
 
-        return (discriminant >= 0.0f);
+    inline RayTracer::RayTracer(){
+
     }
 
-    inline ColourRGBA RayColour(const Ray3D& ray, const World& world){
+    inline RayTracer::~RayTracer(){
+
+    }
+
+    inline void RayTracer::Render(const World& world, const Camera& camera, Image& outputImage){
+
+        const uint32_t width = outputImage.Width();
+        const uint32_t height = outputImage.Height();
+
+
+        char buffer[256];
+        sprintf(buffer, "Rending Image %s [%dx%d]\n", outputImage.Name().c_str(), width, height);
+        
+        //Calculate the delta vectors for each pixel
+        Viewport viewport = camera.GetViewport(); 
+        Vector3 pixelDeltaU = viewport.ViewportU() / (float)width;
+        Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
+        
+        //Calculate where the upper-left-most pixel is
+        Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + (0.5f * (pixelDeltaU + pixelDeltaV)); 
+
+ 
+        Firefly::Timer timer;
+        timer.Start();
+        Firefly::ProgressBar progressBar(height, buffer, 40);
+
+        //Render the Image
+        for(int y = 0; y < height; y++){
+            //Process each Scanline
+            for(int x = 0; x < width; x++){
+                Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
+                Vector3 rayDir = pixelCenter - camera.GetPosition(); 
+                rayDir = Vector3::Normalize(rayDir);
+                Ray3D ray(camera.GetPosition(), rayDir);
+
+                ColourRGBA* pColour = &(outputImage.Pixels()[(width * y) + x]);
+            
+                auto rayColour = RayColour(ray, world);
+                *pColour = rayColour; 
+        }
+
+        progressBar.Advance();     
+        timer.Tick();
+    }
+
+    printf("\nImage %s Rendered in %fs!\n", outputImage.Name().c_str(), timer.Get<std::chrono::milliseconds>() / 1000.0f);
+
+    }
+
+    inline ColourRGBA RayTracer::RayColour(const Ray3D& ray, const World& world){
         for(auto& obj : world.GetScene()){
-            float t = (HitSphere(obj->position, obj->radius, ray));
+            float t = (obj->Hit(ray));
             if(t > 0.0f){
                 Vector3 v = (ray.At(t) - Vector3(0.0f, 0.0f, -1.0f));
                 Vector3 N = Vector3::Normalize(v);

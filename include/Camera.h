@@ -14,6 +14,7 @@ namespace Firefly{
             void SetPosition(const Vector3& position);
 
             float GetFocalLength() const;
+            const Viewport& GetViewport() const;
         private:
             Vector3 m_Position;
 
@@ -58,6 +59,10 @@ namespace Firefly{
 
     inline float Camera::GetFocalLength() const{
         return m_FocalLength;
+    }
+
+    inline const Viewport& Camera::GetViewport() const{
+        return m_Viewport;
     }
 }
 

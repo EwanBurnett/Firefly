@@ -3,6 +3,7 @@
 #include <map>
 #include <stdexcept>
 #include <tinyxml2.h>
+#include "../include/Objects/Sphere.h"
 
 using namespace tinyxml2;
 
@@ -115,6 +116,8 @@ Firefly::IObject* Firefly::World::ObjectFactory(const std::string& type, void* p
 
     IObject* pObject;
 
+    //TODO: Multiple Object Types
+    //Instantiate the object based on its type. 
     if(strcmp(type.c_str(), "FF_SPHERE") == 0){
         printf("Constructing a Sphere!\n");
         
@@ -131,9 +134,8 @@ Firefly::IObject* Firefly::World::ObjectFactory(const std::string& type, void* p
         pPosition->QueryFloatAttribute("z", &pos_z);
 
         XMLElement* pRadius = ((XMLElement*)pElement)->FirstChildElement("Radius"); 
-
-        pObject->position = {pos_x, pos_y, pos_z};
-        pObject->radius = pRadius->FloatText(0.0f); 
+        
+        pObject = new Sphere({pos_x, pos_y, pos_z}, pRadius->FloatText(0.0f));
 
     }
 
