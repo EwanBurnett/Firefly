@@ -19,7 +19,7 @@ namespace Firefly
         m_rng = std::mt19937(m_device());
     }
 
-    inline float RNG::RandomFloat(){
+    inline float RNG::RandomFloat() {
         static std::uniform_real_distribution<float> dist_0_1(0.0f, 1.0f);
         return dist_0_1(m_rng);
     }

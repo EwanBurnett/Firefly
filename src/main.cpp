@@ -25,6 +25,8 @@ int main(int argc, char** argv)
     uint16_t width = 0;
     uint16_t height = 0;
 
+    uint32_t numSamples = 1;
+
     char* fileName = __TIME__;
     char* sceneFile = "";
 
@@ -46,6 +48,10 @@ int main(int argc, char** argv)
             else if(strcmp(argv[i], "-s") == 0){
                 sceneFile = argv[i + 1];
             }
+
+            else if(strcmp(argv[i], "-a") == 0){
+                numSamples = atoi(argv[i + 1]);
+            }
         }        
     }
     
@@ -60,59 +66,16 @@ int main(int argc, char** argv)
         throw std::runtime_error("No Scene was Loaded!\nPlease Specify a Scene File with the -s [filepath] flag.\n");
     }
 
-
-    /*
-    //Initialize the Ray Tracer
-    Firefly::Viewport viewport(width, height);
-    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, viewport);
-
-    //Calculate the delta vectors for each pixel
-    Firefly::Vector3 pixelDeltaU = viewport.ViewportU() / (float)width;
-    Firefly::Vector3 pixelDeltaV = viewport.ViewportV() / (float)height;
-    
-    //Calculate where the upper-left-most pixel is
-    Firefly::Vector3 originPixel = viewport.TopLeft(camera.GetPosition(), camera.GetFocalLength()) + (0.5f * (pixelDeltaU + pixelDeltaV)); 
-
-    
-    //Create the Image
-    uint32_t numPixels = (uint32_t)(width * height);
-    printf("Rendering an Image [%dx%d] (%d pixels)\n", width, height, numPixels);
-
-    std::vector<Firefly::ColourRGBA> img(width * height);
-
-    Firefly::Timer timer;
-    timer.Start();
-    Firefly::ProgressBar pb(height, "Rendering Image...", 40);
-
-    //Render the Image
-    for(int y = 0; y < height; y++){
-        //Process each Scanline
-        for(int x = 0; x < width; x++){
-            Firefly::Vector3 pixelCenter = originPixel + (pixelDeltaU * x) + (pixelDeltaV * y);
-            Firefly::Vector3 rayDir = pixelCenter - camera.GetPosition(); 
-            rayDir = Firefly::Vector3::Normalize(rayDir);
-            Firefly::Ray3D ray(camera.GetPosition(), rayDir);
-
-            Firefly::ColourRGBA* pColour = &img[(width * y) + x];
-            
-            auto rayColour = Firefly::RayColour(ray, world);
-            *pColour = rayColour; 
-        }
-
-        pb.Advance();     
-        timer.Tick();
+    if(numSamples < 1){
+        numSamples = 1;
     }
-
-    printf("\nImage Rendered in %fs!\n", timer.Get<std::chrono::milliseconds>() / 1000.0f);
-
-    */
 
     Firefly::World world;
     world.LoadFromFile(sceneFile);
     Firefly::Viewport vp(width, height);
     Firefly::Camera camera({0.0f, 0.0f, 0.0f}, vp);
     Firefly::Image img(width, height, fileName);
-    Firefly::RayTracer rt;
+    Firefly::RayTracer rt(10);
     rt.Render(world, camera, img);
 
     Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());
