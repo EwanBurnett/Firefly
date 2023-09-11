@@ -107,14 +107,14 @@ namespace Firefly{
 
     inline Colour RayTracer::RayColour(const Ray3D& ray, const World& world){
         for(auto& obj : world.GetScene()){
-            float t = (obj->Hit(ray));
-            if(t > 0.0f){
-                Vector3 v = (ray.At(t) - Vector3(0.0f, 0.0f, -1.0f));
-                Vector3 N = Vector3::Normalize(v);
-                Colour c = {
-                    (0.5f * (N.x + 1.0f)),
-                    (0.5f * (N.y + 1.0f)),
-                    (0.5f * (N.z + 1.0f)),
+
+            HitResult result = {};
+            if(obj->Hit(ray, {0, Infinity}, result)){
+                
+                 Colour c = {
+                    (0.5f * (result.Normal.x + 1.0f)),
+                    (0.5f * (result.Normal.y + 1.0f)),
+                    (0.5f * (result.Normal.z + 1.0f)),
                     1.0f
                 };
                 return c;

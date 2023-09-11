@@ -13,7 +13,7 @@ namespace Firefly
     public:
         Sphere(const Vector3& position, float radius);
 
-        float Hit(const Ray3D& ray) override
+        bool Hit(const Ray3D& ray, Interval interval, HitResult& result) override
         {
             Vector3 oc = ray.Origin() - m_Position;
 
@@ -23,15 +23,29 @@ namespace Firefly
             float discriminant = (half_b * half_b) - a * c;
 
             if(discriminant < 0){
-                return -1.0f;
+                return false;
             }
-            else{
-                //return (-b - sqrt(discriminant)) / (2.0f * a);
-                return (-half_b - sqrt(discriminant)) / a;
-            }
-            
 
-            return (discriminant >= 0.0f);
+            //return (-half_b - sqrt(discriminant)) / a;
+            float sqrtD = sqrt(discriminant);
+
+            //Find the nearest root that lies within the acceptable range
+            float root = (-half_b - sqrtD) / a;
+            if(!interval.Surrounds(root)){
+                root = (-half_b + sqrtD) / a; 
+                if(!interval.Surrounds(root)){
+                    return false; 
+                }
+            }
+
+            result.t = root; 
+            result.Point = ray.At(root);
+            Vector3 outwardsNormal = (result.Point - m_Position) / m_Radius; 
+
+            result.SetFaceNormal(ray, outwardsNormal);
+
+        
+            return true;
         }
 
     private:

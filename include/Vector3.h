@@ -12,6 +12,7 @@ namespace Firefly
         Vector3();
         Vector3(float X, float Y, float Z);
 
+        Vector3 operator - () const;
         float Length() const ;
 
         float LengthSquared() const;
@@ -23,6 +24,10 @@ namespace Firefly
         static Vector3 Normalize(Vector3& vec);
 
     };
+
+        inline Vector3 Vector3::operator -() const {
+            return Vector3(-x, -y, -z);
+        }
 
         inline Vector3 operator + (const Vector3& a, const Vector3& b){
             return Vector3(a.x + b.x, a.y + b.y, a.z + b.z);

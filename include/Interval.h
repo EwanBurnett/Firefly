@@ -11,6 +11,12 @@ namespace Firefly
             Interval();
             Interval(float min, float max);
 
+            float Min() const;
+            void SetMin(float min);
+
+            float Max() const;
+            void SetMax(float max); 
+
             bool Contains(float x) const;
             bool Surrounds(float x) const;
 
@@ -33,6 +39,23 @@ namespace Firefly
     inline Interval::Interval(float min, float max){
         m_Min = min;
         m_Max = max; 
+    }
+
+    inline float Interval::Min() const {
+        return m_Min;
+    }
+
+    inline void Interval::SetMin(float min) {
+        m_Min = min;
+    }
+
+
+    inline float Interval::Max() const {
+        return m_Max; 
+    }
+
+    inline void Interval::SetMax(float max) {
+        m_Max = max;
     }
 
     inline bool Interval::Contains(float x) const {

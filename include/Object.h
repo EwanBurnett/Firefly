@@ -3,6 +3,8 @@
 
 #include "Vector3.h"
 #include "Ray3D.h"
+#include "HitResult.h"
+#include "Interval.h"
 
 namespace Firefly
 {
@@ -12,9 +14,9 @@ namespace Firefly
             IObject(); 
             virtual ~IObject(); 
 
-            virtual float Hit(const Ray3D& ray)
+            virtual bool Hit(const Ray3D& ray, Interval interval, HitResult& result)
             {
-                return 0.0f;
+                return false;
             }
 
     };
