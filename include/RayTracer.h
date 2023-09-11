@@ -25,6 +25,7 @@ namespace Firefly{
             void Render(const World& world, const Camera& camera, Image& outputImage);
 
         private:
+            bool RayHit(const Ray3D& ray, Interval rayInterval, const World& world, HitResult& result);
             Colour RayColour(const Ray3D& ray, const World& world);
             Ray3D GetRandomRay(const Vector3& center, uint32_t x, uint32_t y, const Vector3& pixelOrigin, const Vector3& pixelDeltaU, const Vector3& pixelDeltaV);
             Vector3 PixelSampleSquare(const Vector3& pixelDeltaU, const Vector3& pixelDeltaV);
@@ -105,20 +106,39 @@ namespace Firefly{
 
     }
 
-    inline Colour RayTracer::RayColour(const Ray3D& ray, const World& world){
-        for(auto& obj : world.GetScene()){
+            
+    inline bool RayTracer::RayHit(const Ray3D& ray, Interval rayInterval, const World& world, HitResult& result){
+ 
+        float nearest = rayInterval.Max(); 
+        HitResult tempResult = {};
 
-            HitResult result = {};
-            if(obj->Hit(ray, {0, Infinity}, result)){
-                
-                 Colour c = {
+        bool hitAnything = false;
+
+        for(auto& obj : world.GetScene()){
+            if(obj->Hit(ray, {rayInterval.Min(), nearest}, tempResult)){
+                hitAnything = true; 
+                nearest = tempResult.t; 
+                result = tempResult;
+            }
+        }
+
+
+        return hitAnything; 
+    }
+    
+    inline Colour RayTracer::RayColour(const Ray3D& ray, const World& world){
+            
+        HitResult result {};
+        if(RayHit(ray, {0, Infinity}, world, result))
+        {                 
+                Colour c = {
                     (0.5f * (result.Normal.x + 1.0f)),
                     (0.5f * (result.Normal.y + 1.0f)),
                     (0.5f * (result.Normal.z + 1.0f)),
                     1.0f
                 };
                 return c;
-            }
+                
         }
         
         Vector3 dir = ray.Direction();
