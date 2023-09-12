@@ -1,0 +1,76 @@
+<World name="Example Render">
+
+    <!--Define the Camera-->
+    <Views>
+        <Camera id="Main Camera">
+            <Position x="0.0" y="0.0" z="0.0"/>
+            <Orientation x="0.0" y="0.0" z="0.0"/>
+            <FocalLength>1.0</FocalLength>
+        </Camera>
+        <Camera id="Sub Camera">
+            <Position x="0.0" y="0.0" z="0.0"/>
+            <Orientation x="0.0" y="0.0" z="0.0"/>
+            <FocalLength>1.0</FocalLength>
+        </Camera>
+    </Views>
+
+    <!--Define the Scene-->
+    <Scene>
+        <Object id="Sphere_01" type="FF_SPHERE">
+            <Position x="0.0" y="-42.0" z="-10.0"/>
+            <Radius>40</Radius>
+            <Material type="Lambert">
+                <Albedo r="0" g="1" b="0" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Sphere_02" type="FF_SPHERE">
+            <Position x="0.0" y="0.5" z="-10.0"/>
+            <Radius>-2.5/</Radius>
+            <Material type="Dielectric">
+                <Tint r="1" g="1" b="1" a="1"/>
+                <IR>2.3</IR>
+            </Material>
+        </Object>
+
+
+        <Object id="Sphere_03" type="FF_SPHERE">
+            <Position x="3.0" y="0.0" z="-19.0"/>
+            <Radius>3</Radius>
+            <Material type="Lambert">
+                <Albedo r="0.5" g="1" b="1" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Sphere_04" type="FF_SPHERE">
+            <Position x="0.0" y="5.5" z="-10.0"/>
+            <Radius>2.5/</Radius>
+            <Material type="Metal">
+                <Albedo r="0.25" g="0.25" b="0.25" a="1"/>
+                <Fuzziness>0.1</Fuzziness>
+            </Material>
+        </Object>
+
+        <Object id="Sphere_05" type="FF_SPHERE">
+            <Position x="0.0" y="0.5" z="-10.0"/>
+            <Radius>1.5/</Radius>
+            <Material type="Metal">
+                <Albedo r="0.25" g="0.25" b="0.25" a="1"/>
+                <Fuzziness>0.1</Fuzziness>
+            </Material>
+        </Object>
+
+        <Object id="Sphere_06" type="FF_SPHERE">
+            <Position x="0.0" y="1.5" z="-25.0"/>
+            <Radius>0.5/</Radius>
+            <Material type="Metal">
+                <Albedo r="0.25" g="0.25" b="0.25" a="1"/>
+                <Fuzziness>0.1</Fuzziness>
+            </Material>
+        </Object>
+
+
+
+
+    </Scene>
+</World>

@@ -8,6 +8,7 @@
 #include "../include/Material.h"
 #include "../include/Materials/Lambert.h"
 #include "../include/Materials/Metal.h"
+#include "../include/Materials/Dielectric.h"
 
 using namespace tinyxml2;
 
@@ -190,7 +191,23 @@ Firefly::IMaterial* Firefly::World::MaterialFactory(const std::string& type, voi
 
         pMat = new Metal(albedo, fuzziness);
     }
-    
+    else if(strcmp(type.c_str(), "Dielectric") == 0){
+
+        Colour tint = {};
+        XMLElement* pTint = ((XMLElement*)pElement)->FirstChildElement("Tint");
+        pTint->QueryFloatAttribute("r", &tint.r);
+        pTint->QueryFloatAttribute("g", &tint.g);
+        pTint->QueryFloatAttribute("b", &tint.b);
+        pTint->QueryFloatAttribute("a", &tint.a);
+
+        float ir  = 1.0f; 
+        XMLElement* pIR = ((XMLElement*)pElement)->FirstChildElement("IR");
+        pIR->QueryFloatText(&ir);
+
+        printf("Loading Dielectric\tTint(%f, %f, %f, %f)\nIndex of Refraction: %f\n", tint.r, tint.g, tint.g, tint.a, ir);
+
+        pMat = new Dielectric(tint, ir);
+    }
 
     return pMat;
 }

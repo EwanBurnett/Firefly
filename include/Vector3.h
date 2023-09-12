@@ -30,6 +30,8 @@ namespace Firefly
         
         static Vector3 Reflect(const Vector3& vector, const Vector3& normal);
 
+        static Vector3 Refract(const Vector3& vector, const Vector3& normal, float etai_over_etat);
+
     };
 
         inline Vector3 Vector3::operator -() const {
@@ -127,6 +129,16 @@ namespace Firefly
         inline Vector3 Vector3::Reflect(const Vector3& vector, const Vector3& normal)
         {
             return vector - (2.0f * Vector3::Dot(vector, normal) * normal); 
+        }
+
+        inline Vector3 Vector3::Refract(const Vector3& vector, const Vector3& normal, float etai_over_etat)
+        {
+            float cosTheta = fminf(Vector3::Dot(-vector, normal), 1.0f);
+            Vector3 perpendicularRefraction = etai_over_etat * (vector + cosTheta * normal);
+
+            Vector3 parallelRefraction = -sqrtf(fabsf(1.0f - perpendicularRefraction.LengthSquared())) * normal; 
+
+            return perpendicularRefraction + parallelRefraction; 
         }
 }
 
