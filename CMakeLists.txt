@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project("Firefly" VERSION 0.2)
+project("Firefly" VERSION 0.3)
 
 # Download any dependencies
 find_package(Threads REQUIRED)

@@ -26,6 +26,10 @@ namespace Firefly
 
         static Vector3 Random();
 
+        static bool NearlyEqual(const Vector3& a, const Vector3& b);
+        
+        static Vector3 Reflect(const Vector3& vector, const Vector3& normal);
+
     };
 
         inline Vector3 Vector3::operator -() const {
@@ -114,6 +118,16 @@ namespace Firefly
             };
         }
 
+        inline bool Vector3::NearlyEqual(const Vector3& a, const Vector3& b)
+        {
+            float s = 1e-8;
+            return ((a.x < (b.x + s)) && (a.y < (b.y + s)) && (a.z < (b.z + s)));
+        }
+
+        inline Vector3 Vector3::Reflect(const Vector3& vector, const Vector3& normal)
+        {
+            return vector - (2.0f * Vector3::Dot(vector, normal) * normal); 
+        }
 }
 
 #endif

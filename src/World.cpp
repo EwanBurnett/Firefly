@@ -7,6 +7,7 @@
 #include "../include/ColourRGBA.h"
 #include "../include/Material.h"
 #include "../include/Materials/Lambert.h"
+#include "../include/Materials/Metal.h"
 
 using namespace tinyxml2;
 
@@ -172,6 +173,24 @@ Firefly::IMaterial* Firefly::World::MaterialFactory(const std::string& type, voi
 
         pMat = new Lambert(albedo);
     }
+    else if(strcmp(type.c_str(), "Metal") == 0){
+
+        Colour albedo = {};
+        XMLElement* pAlbedo = ((XMLElement*)pElement)->FirstChildElement("Albedo");
+        pAlbedo->QueryFloatAttribute("r", &albedo.r);
+        pAlbedo->QueryFloatAttribute("g", &albedo.g);
+        pAlbedo->QueryFloatAttribute("b", &albedo.b);
+        pAlbedo->QueryFloatAttribute("a", &albedo.a);
+
+        float fuzziness = 1.0f; 
+        XMLElement* pFuzziness = ((XMLElement*)pElement)->FirstChildElement("Fuzziness");
+        pFuzziness->QueryFloatText(&fuzziness);
+
+        printf("Loading Metal\tAlbedo: (%f, %f, %f, %f)\nfuzziness: %f", albedo.r, albedo.g, albedo.b, albedo.a, fuzziness);
+
+        pMat = new Metal(albedo, fuzziness);
+    }
+    
 
     return pMat;
 }
