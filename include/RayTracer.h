@@ -154,7 +154,7 @@ namespace Firefly{
             Colour attenuation = {};
             if(result.Material != nullptr){
                 if(result.Material->Scatter(ray, result, attenuation, scattered)){
-                    return attenuation * RayColour(scattered, m_Depth - 1, world);
+                    return attenuation * RayColour(scattered, depth - 1, world);
                 }
                 return Colour{};
             }
