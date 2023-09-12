@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <tinyxml2.h>
 #include "../include/Objects/Sphere.h"
+#include "../include/ColourRGBA.h"
+#include "../include/Material.h"
+#include "../include/Materials/Lambert.h"
 
 using namespace tinyxml2;
 
@@ -134,12 +137,42 @@ Firefly::IObject* Firefly::World::ObjectFactory(const std::string& type, void* p
         pPosition->QueryFloatAttribute("z", &pos_z);
 
         XMLElement* pRadius = ((XMLElement*)pElement)->FirstChildElement("Radius"); 
+
+        XMLElement* pMatData = ((XMLElement*)pElement)->FirstChildElement("Material");
         
-        pObject = new Sphere({pos_x, pos_y, pos_z}, pRadius->FloatText(0.0f));
+        IMaterial* pMaterial = nullptr;
+        if(pMatData){
+            const char* matType = "FF_MAT_NULL";
+            pMatData->QueryStringAttribute("type", &matType);
+            pMaterial = MaterialFactory(matType, pMatData);
+        }
+        
+        pObject = new Sphere({pos_x, pos_y, pos_z}, pRadius->FloatText(0.0f), pMaterial);
 
     }
 
 
     return pObject;
+}
+    
+Firefly::IMaterial* Firefly::World::MaterialFactory(const std::string& type, void* pElement)
+{
+
+    IMaterial* pMat = nullptr;
+    if(strcmp(type.c_str(), "Lambert") == 0){
+
+        Colour albedo = {};
+        XMLElement* pAlbedo = ((XMLElement*)pElement)->FirstChildElement("Albedo");
+        pAlbedo->QueryFloatAttribute("r", &albedo.r);
+        pAlbedo->QueryFloatAttribute("g", &albedo.g);
+        pAlbedo->QueryFloatAttribute("b", &albedo.b);
+        pAlbedo->QueryFloatAttribute("a", &albedo.a);
+
+        printf("Loading Lambert\tAlbedo: (%f, %f, %f, %f)\n", albedo.r, albedo.g, albedo.b, albedo.a);
+
+        pMat = new Lambert(albedo);
+    }
+
+    return pMat;
 }
 

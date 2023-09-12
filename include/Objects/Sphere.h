@@ -5,13 +5,15 @@
 #include "../Vector3.h"
 #include "../Ray3D.h"
 #include <cmath>
+#include "../Material.h"
+#include <memory>
 
 namespace Firefly
 {
     class Sphere : public IObject
     {
     public:
-        Sphere(const Vector3& position, float radius);
+        Sphere(const Vector3& position, float radius, IMaterial* pMaterial = nullptr);
 
         bool Hit(const Ray3D& ray, Interval interval, HitResult& result) override
         {
@@ -43,6 +45,7 @@ namespace Firefly
             Vector3 outwardsNormal = (result.Point - m_Position) / m_Radius; 
 
             result.SetFaceNormal(ray, outwardsNormal);
+            result.Material = m_Material; 
 
         
             return true;
@@ -51,12 +54,15 @@ namespace Firefly
     private:
         Vector3 m_Position;
         float m_Radius; 
+        std::shared_ptr<IMaterial> m_Material;
 
     };
 
-    inline Sphere::Sphere(const Vector3& position, float radius){
+    inline Sphere::Sphere(const Vector3& position, float radius, IMaterial* pMaterial){
         m_Position = position;
         m_Radius = radius;
+
+        m_Material = std::shared_ptr<IMaterial>(pMaterial);
     }
 }
 

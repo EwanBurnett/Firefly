@@ -4,9 +4,12 @@
 #include "Ray3D.h"
 #include "Vector3.h"
 #include "MathHelper.h"
+#include <memory>
 
 namespace Firefly
 {
+    class IMaterial; 
+
     struct HitResult
     {
         HitResult(){
@@ -14,6 +17,7 @@ namespace Firefly
             Normal = {};
             t = -Infinity;
             isFrontFacing = false; 
+            Material = nullptr;
         }
 
         void SetFaceNormal(const Ray3D& ray, const Vector3& outwardsNormal){
@@ -25,6 +29,7 @@ namespace Firefly
         Vector3 Normal;
         float t;
         bool isFrontFacing;
+        std::shared_ptr<IMaterial> Material;
     };
 }
 

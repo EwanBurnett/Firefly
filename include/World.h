@@ -16,6 +16,7 @@ namespace Firefly
 
         private:
             IObject* ObjectFactory(const std::string& type, void* pElement);
+            IMaterial* MaterialFactory(const std::string& type, void* pElement);
             std::vector<IObject*> m_Objects;
     };
 }

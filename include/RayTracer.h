@@ -13,30 +13,33 @@
 #include <cstdio>
 #include "Progressbar.h"
 #include "Timer.h"
+#include "Material.h"
 
 namespace Firefly{
 
     class RayTracer{
 
         public:
-            RayTracer(uint32_t samples = 1);
+            RayTracer(uint32_t samples = 1, uint32_t depth = 1);
             ~RayTracer();
             
             void Render(const World& world, const Camera& camera, Image& outputImage);
 
         private:
             bool RayHit(const Ray3D& ray, Interval rayInterval, const World& world, HitResult& result);
-            Colour RayColour(const Ray3D& ray, const World& world);
+            Colour RayColour(const Ray3D& ray, uint32_t depth, const World& world);
             Ray3D GetRandomRay(const Vector3& center, uint32_t x, uint32_t y, const Vector3& pixelOrigin, const Vector3& pixelDeltaU, const Vector3& pixelDeltaV);
             Vector3 PixelSampleSquare(const Vector3& pixelDeltaU, const Vector3& pixelDeltaV);
 
             RNG m_RNG;
             uint32_t m_Samples; 
+            uint32_t m_Depth;
     };
 
 
-    inline RayTracer::RayTracer(uint32_t samples){
+    inline RayTracer::RayTracer(uint32_t samples, uint32_t depth){
         m_Samples = samples;
+        m_Depth = depth;
     }
 
     inline RayTracer::~RayTracer(){
@@ -76,7 +79,7 @@ namespace Firefly{
 
                 for(uint32_t i = 0; i < m_Samples; i++){
                     Ray3D ray = GetRandomRay(camera.GetPosition(), x, y, pixelOrigin, pixelDeltaU, pixelDeltaV);
-                    Colour rayColour = RayColour(ray, world);
+                    Colour rayColour = RayColour(ray, m_Depth, world);
 
                     colour.r += rayColour.r;
                     colour.g += rayColour.g;
@@ -126,12 +129,24 @@ namespace Firefly{
         return hitAnything; 
     }
     
-    inline Colour RayTracer::RayColour(const Ray3D& ray, const World& world){
-            
+    inline Colour RayTracer::RayColour(const Ray3D& ray, uint32_t depth, const World& world){
+
+        if(depth <= 0){
+            return Colour{};
+        }
+
         HitResult result {};
         if(RayHit(ray, {0, Infinity}, world, result))
         {                 
-                Colour c = {
+            Ray3D scattered = {};
+            Colour attenuation = {};
+            if(result.Material != nullptr){
+                if(result.Material->Scatter(ray, result, attenuation, scattered)){
+                    return attenuation * RayColour(scattered, m_Depth - 1, world);
+                }
+            }
+             
+            Colour c = {
                     (0.5f * (result.Normal.x + 1.0f)),
                     (0.5f * (result.Normal.y + 1.0f)),
                     (0.5f * (result.Normal.z + 1.0f)),

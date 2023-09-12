@@ -15,13 +15,19 @@ namespace Firefly
         float r, g, b, a;
     };
 
-        struct ColourRGBA{
+    inline Colour operator * (const Colour& a, const Colour& b){
+            return Colour(a.r * b.r, a.g * b.g, a.b * b.b, a.a * b.a);
+}
+
+
+    struct ColourRGBA{
         ColourRGBA(uint8_t R = 0, uint8_t G = 0, uint8_t B = 0, uint8_t A = 255);
         ColourRGBA(const Colour& colour);
 
         uint8_t r, g, b, a;
     };
 
-    }
+}
+    
 
 #endif

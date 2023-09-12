@@ -2,6 +2,7 @@
 #define _FIREFLY_VECTOR3_H
 
 #include <cmath> 
+#include "RNG.h"
 
 namespace Firefly
 {
@@ -22,6 +23,8 @@ namespace Firefly
         static Vector3 Cross(const Vector3& a, const Vector3& b);
 
         static Vector3 Normalize(Vector3& vec);
+
+        static Vector3 Random();
 
     };
 
@@ -100,6 +103,15 @@ namespace Firefly
 
         inline Vector3 Vector3::Normalize(Vector3& vec){
             return vec / vec.Length();
+        }
+
+        inline Vector3 Vector3::Random(){
+            static RNG rng; 
+            return {
+                rng.RandomFloat(),
+                rng.RandomFloat(),
+                rng.RandomFloat()
+            };
         }
 
 }
