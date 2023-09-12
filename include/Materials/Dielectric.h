@@ -15,6 +15,7 @@ namespace Firefly
         private:
 
             float Reflectance(float cosine, float refIdx) const;
+            float Fresnel(const Vector3& vector, const Vector3& normal) const;
 
             Colour m_Tint;
             float m_IR; 
@@ -37,17 +38,26 @@ namespace Firefly
         float sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
         
         bool cannot_refract = ratioOfRefraction * sinTheta > 1.0f;
+
         Vector3 direction = {};
 
         static RNG rng;
         if(cannot_refract || Reflectance(cosTheta, ratioOfRefraction) > rng.RandomFloat()){
             direction = Vector3::Reflect(unitDir, result.Normal);
+
         }
         else{
             direction = Vector3::Refract(unitDir, result.Normal, ratioOfRefraction);
         }
         scatter = Ray3D(result.Point, direction);
-        attenuation = m_Tint;
+            
+        float f = Fresnel(inRay.Direction(), result.Normal);
+        //attenuation = m_Tint;
+
+        attenuation.r = (1.0f - f) * m_Tint.r;
+        attenuation.g = (1.0f - f) * m_Tint.g;
+        attenuation.b = (1.0f - f) * m_Tint.b;
+        attenuation.a = (1.0f - f) * m_Tint.a;
 
         return true;
     }
@@ -59,6 +69,11 @@ namespace Firefly
         float r0 = (1.0f - refIdx) / (1.0f + refIdx);
         r0 = r0 * r0;
         return r0 + (1.0f + r0) * pow((1.0f - cosine), 5);
+    }
+
+    inline float Dielectric::Fresnel(const Vector3& vector, const Vector3& normal) const
+    {
+        return powf(1.0f + Vector3::Dot(vector, normal), 3.0f); //The Fresnel Effect 
     }
 }
 #endif
