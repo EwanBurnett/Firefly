@@ -6,6 +6,8 @@
 namespace Firefly
 {
 
+    //TODO: 3 Component Colours; Alpha is largely ignored in ray tracing
+    
     struct ColourRGBA; 
 
     struct Colour{

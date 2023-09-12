@@ -26,6 +26,7 @@ int main(int argc, char** argv)
     uint16_t height = 0;
 
     uint32_t numSamples = 1;
+    uint32_t depth = 1;
 
     char* fileName = __TIME__;
     char* sceneFile = "";
@@ -52,6 +53,10 @@ int main(int argc, char** argv)
             else if(strcmp(argv[i], "-a") == 0){
                 numSamples = atoi(argv[i + 1]);
             }
+            
+            else if(strcmp(argv[i], "-d") == 0){
+                depth = atoi(argv[i + 1]);
+            }
         }        
     }
     
@@ -75,7 +80,7 @@ int main(int argc, char** argv)
     Firefly::Viewport vp(width, height);
     Firefly::Camera camera({0.0f, 0.0f, 0.0f}, vp);
     Firefly::Image img(width, height, fileName);
-    Firefly::RayTracer rt(10);
+    Firefly::RayTracer rt(numSamples, depth);
     rt.Render(world, camera, img);
 
     Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());

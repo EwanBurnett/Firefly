@@ -17,6 +17,7 @@
 
 namespace Firefly{
 
+    //TODO: Move inline functions into RayTracer.cpp
     class RayTracer{
 
         public:
@@ -87,11 +88,22 @@ namespace Firefly{
                     colour.a += rayColour.a;
                 }
 
+                //TODO: Encapsulate in a WriteColour() function
                 colour.r *= scale;
                 colour.g *= scale;
                 colour.b *= scale;
                 colour.a *= scale;
                 
+                //Apply Gamma Correction
+                auto LinearToGamma = [&](float linear){
+                    return sqrt(linear);
+                };
+                
+                colour.r = LinearToGamma(colour.r);
+                colour.g = LinearToGamma(colour.g);
+                colour.b = LinearToGamma(colour.b);
+                colour.a = LinearToGamma(colour.a);
+
                 Interval iv(0.0f, 0.999f);
                 *pColour = ColourRGBA(
                     (uint8_t)(255.99f * iv.Clamp(colour.r)),
@@ -136,7 +148,7 @@ namespace Firefly{
         }
 
         HitResult result {};
-        if(RayHit(ray, {0, Infinity}, world, result))
+        if(RayHit(ray, {0.001f, Infinity}, world, result))
         {                 
             Ray3D scattered = {};
             Colour attenuation = {};
@@ -144,6 +156,7 @@ namespace Firefly{
                 if(result.Material->Scatter(ray, result, attenuation, scattered)){
                     return attenuation * RayColour(scattered, m_Depth - 1, world);
                 }
+                return Colour{};
             }
              
             Colour c = {
