@@ -83,6 +83,6 @@ int main(int argc, char** argv)
     Firefly::RayTracer rt(numSamples, depth);
     rt.Render(world, camera, img);
 
-    Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());
+    //Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());
     Firefly::Exporter::ExportToPNG(fileName, width, height, img.Pixels());
 }

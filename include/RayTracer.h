@@ -142,13 +142,14 @@ namespace Firefly{
     }
     
     inline Colour RayTracer::RayColour(const Ray3D& ray, uint32_t depth, const World& world){
-
+        //Limit the recursive depth
         if(depth <= 0){
             return Colour{};
         }
 
         HitResult result {};
-        if(RayHit(ray, {0.001f, Infinity}, world, result))
+        Interval acceptanceRange = {0.001f, Infinity};
+        if(RayHit(ray, acceptanceRange, world, result))
         {                 
             Ray3D scattered = {};
             Colour attenuation = {};
@@ -165,10 +166,11 @@ namespace Firefly{
                     (0.5f * (result.Normal.z + 1.0f)),
                     1.0f
                 };
-                return c;
+            return c;
                 
         }
         
+        //If nothing was hit, Render the skybox Gradient.
         Vector3 dir = ray.Direction();
         
         auto k = 0.5f * (dir.y + 1.0f);

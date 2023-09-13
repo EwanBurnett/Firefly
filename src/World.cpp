@@ -204,9 +204,14 @@ Firefly::IMaterial* Firefly::World::MaterialFactory(const std::string& type, voi
         XMLElement* pIR = ((XMLElement*)pElement)->FirstChildElement("IR");
         pIR->QueryFloatText(&ir);
 
-        printf("Loading Dielectric\tTint(%f, %f, %f, %f)\nIndex of Refraction: %f\n", tint.r, tint.g, tint.g, tint.a, ir);
+        float fresnel  = 1.0f; 
+        XMLElement* pFresnel = ((XMLElement*)pElement)->FirstChildElement("Fresnel");
+        pFresnel->QueryFloatText(&fresnel);
 
-        pMat = new Dielectric(tint, ir);
+
+        printf("Loading Dielectric\tTint(%f, %f, %f, %f)\nIndex of Refraction: %f\nfresnel: %f\n", tint.r, tint.g, tint.g, tint.a, ir, fresnel);
+
+        pMat = new Dielectric(tint, ir, fresnel);
     }
 
     return pMat;

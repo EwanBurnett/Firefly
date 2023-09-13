@@ -9,7 +9,7 @@ namespace Firefly
     class Dielectric : public IMaterial
     {
         public:
-            Dielectric(Colour tint = {}, float indexOfRefraction = 1.0f);
+            Dielectric(Colour tint = {}, float indexOfRefraction = 1.0f, float fresnel = 1.0f);
             bool Scatter(Ray3D inRay, HitResult& result, Colour& attenuation, Ray3D& scatter) const override;
 
         private:
@@ -19,12 +19,14 @@ namespace Firefly
 
             Colour m_Tint;
             float m_IR; 
+            float m_Fresnel; 
     };
         
-    inline Dielectric::Dielectric(Colour tint, float indexOfRefraction)
+    inline Dielectric::Dielectric(Colour tint, float indexOfRefraction, float fresnel)
     {
         m_Tint = tint;
         m_IR = indexOfRefraction;
+        m_Fresnel = fresnel;
     }
 
     inline bool Dielectric::Scatter(Ray3D inRay, HitResult& result, Colour& attenuation, Ray3D& scatter) const{
@@ -39,20 +41,19 @@ namespace Firefly
         
         bool cannot_refract = ratioOfRefraction * sinTheta > 1.0f;
 
+        static RNG rng;
+        bool shouldReflect = Reflectance(cosTheta, ratioOfRefraction) > rng.RandomFloat();
         Vector3 direction = {};
 
-        static RNG rng;
-        if(cannot_refract || Reflectance(cosTheta, ratioOfRefraction) > rng.RandomFloat()){
+        if(cannot_refract || shouldReflect){
             direction = Vector3::Reflect(unitDir, result.Normal);
-
         }
         else{
             direction = Vector3::Refract(unitDir, result.Normal, ratioOfRefraction);
         }
         scatter = Ray3D(result.Point, direction);
             
-        float f = Fresnel(inRay.Direction(), result.Normal);
-        //attenuation = m_Tint;
+        float f = Fresnel(inRay.Direction(), result.Normal) * m_Fresnel;
 
         attenuation.r = (1.0f - f) * m_Tint.r;
         attenuation.g = (1.0f - f) * m_Tint.g;
