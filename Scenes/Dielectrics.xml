@@ -1,0 +1,120 @@
+<World name="Dielectric">
+    <Views>
+        <Camera id="Main Camera">
+            <Position x="0.0" y="0.0" z="0.0" />
+            <Orientation x="0.0" y="0.0" z="0.0" />
+            <FocalLength>1.0</FocalLength>
+        </Camera>
+    </Views>
+
+    <!--Showcases full colours-->
+    <Scene>
+        <Object id="White" type="FF_SPHERE">
+            <Position x="-9.5" y="0" z="-10.0" />
+            <Radius>2.5/</Radius>
+            <Material type="Dielectric">
+                <Tint r="1" g="1" b="1" a="1"/>
+                <IR>2.3</IR>
+                <Fresnel>1.0</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Red" type="FF_SPHERE">
+            <Position x="-4.5" y="3.25" z="-10.0" />
+            <Radius>2.5</Radius>
+            <Material type="Dielectric">
+                <Tint r="1" g="0" b="0" a="1"/>
+                <IR>1.0</IR>
+                <Fresnel>0</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Green" type="FF_SPHERE">
+            <Position x="0" y="5.5" z="-10.0" />
+            <Radius>2.5</Radius>
+            <Material type="Dielectric">
+                <Tint r="0" g="1" b="0" a="1"/>
+                <IR>0.3</IR>
+                <Fresnel>0.2</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Blue" type="FF_SPHERE">
+            <Position x="4.5" y="3.25" z="-10.0" />
+            <Radius>2.5/</Radius>
+            <Material type="Dielectric">
+                <Tint r="0" g="0" b="1" a="1"/>
+                <IR>2.0</IR>
+                <Fresnel>0.4</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Cyan" type="FF_SPHERE">
+            <Position x="-4.5" y="-3.25" z="-10.0" />
+            <Radius>2.5</Radius>
+            <Material type="Dielectric">
+                <Tint r="0" g="1" b="1" a="1"/>
+                <IR>1.3</IR>
+                <Fresnel>0.5</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Yellow" type="FF_SPHERE">
+            <Position x="0" y="-5.5" z="-10.0" />
+            <Radius>2.5</Radius>
+            <Material type="Dielectric">
+                <Tint r="1" g="1" b="0" a="1"/>
+                <IR>2.3</IR>
+                <Fresnel>0.7</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Purple" type="FF_SPHERE">
+            <Position x="4.5" y="-3.25" z="-10.0" />
+            <Radius>2.5/</Radius>
+            <Material type="Dielectric">
+                <Tint r="1" g="0" b="1" a="1"/>
+                <IR>3.0</IR>
+                <Fresnel>1.0</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Black" type="FF_SPHERE">
+            <Position x="9.5" y="0" z="-10.0" />
+            <Radius>2.5/</Radius>
+            <Material type="Dielectric">
+                <Tint r="0" g="0" b="0" a="1"/>
+                <IR>1.8</IR>
+                <Fresnel>3.0</Fresnel>
+            </Material>
+        </Object>
+
+        <Object id="Bg_Red" type="FF_SPHERE">
+            <Position x="-3.5" y="3.25" z="-20.0"/>
+            <Radius>5</Radius>
+            <Material type="Lambert">
+                <Albedo r="1" g="0" b="0" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Bg_Green" type="FF_SPHERE">
+            <Position x="3.5" y="3.25" z="-20.0"/>
+            <Radius>5</Radius>
+            <Material type="Metal">
+                <Albedo r="0" g="1" b="0" a="1"/>
+                <Fuzziness>0.5</Fuzziness>
+            </Material>
+        </Object>
+
+        <Object id="Bg_Blue" type="FF_SPHERE">
+            <Position x="0" y="-3.25" z="-20.0"/>
+            <Radius>5</Radius>
+            <Material type="Dielectric">
+                <Tint r="0" g="0" b="1" a="1"/>
+                <IR>2.3</IR>
+                <Fresnel>1</Fresnel>
+            </Material>
+        </Object>
+
+    </Scene>
+</World>

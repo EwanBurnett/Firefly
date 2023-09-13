@@ -1,13 +1,8 @@
-<World name="Example Render">
+<World name="Materials">
 
     <!--Define the Camera-->
     <Views>
         <Camera id="Main Camera">
-            <Position x="0.0" y="0.0" z="0.0"/>
-            <Orientation x="0.0" y="0.0" z="0.0"/>
-            <FocalLength>1.0</FocalLength>
-        </Camera>
-        <Camera id="Sub Camera">
             <Position x="0.0" y="0.0" z="0.0"/>
             <Orientation x="0.0" y="0.0" z="0.0"/>
             <FocalLength>1.0</FocalLength>
@@ -30,6 +25,7 @@
             <Material type="Dielectric">
                 <Tint r="1" g="1" b="1" a="1"/>
                 <IR>2.3</IR>
+                <Fresnel>1.0</Fresnel>
             </Material>
         </Object>
 
