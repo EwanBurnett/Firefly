@@ -9,6 +9,7 @@
 #include "../include/Materials/Lambert.h"
 #include "../include/Materials/Metal.h"
 #include "../include/Materials/Dielectric.h"
+#include "../include/Camera.h"
 
 using namespace tinyxml2;
 
@@ -16,7 +17,11 @@ const std::vector<Firefly::IObject*>& Firefly::World::GetScene() const{
     return m_Objects;
 }
 
-void Firefly::World::LoadFromFile(const std::string& filePath){
+const std::vector<Firefly::Camera>& Firefly::World::GetCameras() const{
+    return m_Cameras;
+}
+
+void Firefly::World::LoadFromFile(const std::string& filePath, const Viewport& viewport){
     //Load each element from the file
     //and instantiate them in the world. 
     
@@ -50,6 +55,7 @@ void Firefly::World::LoadFromFile(const std::string& filePath){
     //--- ...
     XMLElement* pRoot = document.RootElement();
 
+    //TODO: Fix Segfault on accessing null XMLElement pointers
     if(pRoot){
         //Load the Camera Views
         XMLElement* pViews = pRoot->FirstChildElement("Views");
@@ -84,8 +90,17 @@ void Firefly::World::LoadFromFile(const std::string& filePath){
                 XMLElement* pFocalLength = pCamera->FirstChildElement("FocalLength");
                 float focalLength = pFocalLength->FloatText(1.0f);
 
-                //TODO: Construct a Camera object in the world using these parameters
-                printf("\n[XML] Loaded Camera <%s>:\n\tPosition: (%f, %f, %f)\n\tOrientation: (%f, %f, %f)\n\tFocal Length: %f\n", id, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, focalLength);
+                XMLElement* pFoV = pCamera->FirstChildElement("FoV");
+                float fov = pFoV->FloatText(90.0f);
+
+                XMLElement* pDefocusAngle = pCamera->FirstChildElement("DefocusAngle");
+                float defocusAngle = pDefocusAngle->FloatText(0.0f);
+
+
+                //TODO: Camera Method SetViewPort() to avoid passing it through here
+                m_Cameras.push_back(Camera({pos_x, pos_y, pos_z}, viewport, focalLength, defocusAngle, fov, {rot_x, rot_y, rot_z}));
+                
+                printf("\n[XML] Loaded Camera <%s>:\n\tPosition: (%f, %f, %f)\n\tOrientation: (%f, %f, %f)\n\tFocal Length: %f\nDefocus Angle: %f\nFoV: %f\n", id, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, focalLength, defocusAngle, fov);
 
                 pCamera = pCamera->NextSiblingElement("Camera"); //Load the next Camera
             }

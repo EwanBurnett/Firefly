@@ -75,10 +75,20 @@ int main(int argc, char** argv)
         numSamples = 1;
     }
 
-    Firefly::World world;
-    world.LoadFromFile(sceneFile);
     Firefly::Viewport vp(width, height);
-    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, vp);
+    Firefly::World world;
+    world.LoadFromFile(sceneFile, vp);
+
+    Firefly::Camera camera;
+    {
+        auto cameras = world.GetCameras();
+        if(cameras.empty()){
+            camera = {{0.0f, 0.0f, 0.0f}, vp};
+        }
+        else{
+            camera = cameras[0];
+        }
+    }
     Firefly::Image img(width, height, fileName);
     Firefly::RayTracer rt(numSamples, depth);
     rt.Render(world, camera, img);

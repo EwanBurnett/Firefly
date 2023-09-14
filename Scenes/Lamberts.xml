@@ -3,8 +3,10 @@
     <Views>
         <Camera id="Main Camera">
             <Position x="0.0" y="0.0" z="0.0"/>
-            <Orientation x="0.0" y="0.0" z="0.0"/>
+            <Orientation x="0.0" y="0.0" z="-1.0"/>
             <FocalLength>1.0</FocalLength>
+            <FoV>110</FoV>
+            <DefocusAngle>0</DefocusAngle>
         </Camera>
     </Views>
 
