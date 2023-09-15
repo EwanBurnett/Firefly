@@ -90,9 +90,6 @@ namespace Firefly
 
         timer.Tick();
         printf("Export Complete in %fs!\n", timer.Get<std::chrono::milliseconds>() / 1000.0f);
-        
-           
-
     }
 }
 #endif

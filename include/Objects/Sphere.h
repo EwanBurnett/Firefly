@@ -13,7 +13,7 @@ namespace Firefly
     class Sphere : public IObject
     {
     public:
-        Sphere(const Vector3& position, float radius, IMaterial* pMaterial = nullptr);
+        Sphere(const Vector3& position, float radius, std::shared_ptr<IMaterial> pMaterial = nullptr);
 
         bool Hit(const Ray3D& ray, Interval interval, HitResult& result) override
         {
@@ -58,11 +58,11 @@ namespace Firefly
 
     };
 
-    inline Sphere::Sphere(const Vector3& position, float radius, IMaterial* pMaterial){
+    inline Sphere::Sphere(const Vector3& position, float radius, std::shared_ptr<IMaterial> pMaterial){
         m_Position = position;
         m_Radius = radius;
 
-        m_Material = std::shared_ptr<IMaterial>(pMaterial);
+        m_Material = pMaterial;
     }
 }
 

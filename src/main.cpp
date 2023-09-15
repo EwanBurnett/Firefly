@@ -22,8 +22,8 @@ int main(int argc, char** argv)
     printf("Firefly v%d.%da\n", FIREFLY_VERSION_MAJOR, FIREFLY_VERSION_MINOR);
     
 
-    uint16_t width = 0;
-    uint16_t height = 0;
+    uint16_t width = 100;
+    uint16_t height = 100;
 
     uint32_t numSamples = 1;
     uint32_t depth = 1;
@@ -60,20 +60,28 @@ int main(int argc, char** argv)
         }        
     }
     
-    if(width == 0){
-        throw std::runtime_error("Width was 0!\n");
-    }
-    if(height == 0){
-        throw std::runtime_error("Height was 0!\n");
+    //Validate input arguments
+    {
+        if(width == 0){
+            throw std::runtime_error("Width was 0!\nImage Width must be greater than 0.\n");
+        }
+        if(height == 0){
+            throw std::runtime_error("Height was 0!\nImage Height must be Greater than 0.\n");
+        }
+
+        if(strcmp(sceneFile, "") == 0){
+            throw std::runtime_error("No Scene was Loaded!\nPlease Specify a Scene File with the -s [filepath] flag.\n");
+        }
+
+        if(numSamples < 1){
+            numSamples = 1;
+        }
+
+        if(depth < 1){
+            depth = 1;
+        }
     }
 
-    if(strcmp(sceneFile, "") == 0){
-        throw std::runtime_error("No Scene was Loaded!\nPlease Specify a Scene File with the -s [filepath] flag.\n");
-    }
-
-    if(numSamples < 1){
-        numSamples = 1;
-    }
 
     Firefly::Viewport vp(width, height);
     Firefly::World world;
@@ -86,7 +94,7 @@ int main(int argc, char** argv)
             camera = {{0.0f, 0.0f, 0.0f}, vp};
         }
         else{
-            camera = cameras[0];
+            camera = cameras[0]; //Use the Default camera from the World.
         }
     }
     Firefly::Image img(width, height, fileName);

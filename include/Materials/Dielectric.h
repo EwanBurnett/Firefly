@@ -31,12 +31,13 @@ namespace Firefly
 
     inline bool Dielectric::Scatter(Ray3D inRay, HitResult& result, Colour& attenuation, Ray3D& scatter) const{
 
-        float ratioOfRefraction = result.isFrontFacing ? (1.0f / m_IR) : m_IR; 
+        float ratioOfRefraction = result.isFrontFacing ? (1.0f / m_IR) : m_IR;
 
         Vector3 inDir = inRay.Direction();
         Vector3 unitDir = Vector3::Normalize(inDir);
         
-        float cosTheta = fminf(Vector3::Dot(-unitDir, result.Normal), 1.0f);
+        float cosTheta = Vector3::Dot(-unitDir, result.Normal);
+        cosTheta = fminf(cosTheta, 1.0f);
         float sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
         
         bool cannot_refract = ratioOfRefraction * sinTheta > 1.0f;

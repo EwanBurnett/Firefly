@@ -13,6 +13,16 @@
 
 using namespace tinyxml2;
 
+Firefly::World::World(){
+
+}
+
+Firefly::World::~World(){
+    for(IObject* obj : m_Objects){
+        delete obj;
+    }
+}
+
 const std::vector<Firefly::IObject*>& Firefly::World::GetScene() const{
     return m_Objects;
 }
@@ -68,34 +78,46 @@ void Firefly::World::LoadFromFile(const std::string& filePath, const Viewport& v
                 error = pCamera->QueryStringAttribute("id", &id);
 
                 //Position
-                XMLElement* pPosition = pCamera->FirstChildElement("Position");
                 float pos_x = 0.0f;
                 float pos_y = 0.0f;
                 float pos_z = 0.0f;
 
-                pPosition->QueryFloatAttribute("x", &pos_x);
-                pPosition->QueryFloatAttribute("y", &pos_y);
-                pPosition->QueryFloatAttribute("z", &pos_z);
+                XMLElement* pPosition = pCamera->FirstChildElement("Position");
+                if(pPosition != nullptr){
+                    pPosition->QueryFloatAttribute("x", &pos_x);
+                    pPosition->QueryFloatAttribute("y", &pos_y);
+                    pPosition->QueryFloatAttribute("z", &pos_z);
+                }
 
                 //Orientation
-                XMLElement* pOrientation = pCamera->FirstChildElement("Orientation");
                 float rot_x = 0.0f;
                 float rot_y = 0.0f;
                 float rot_z = 0.0f;
 
-                pOrientation->QueryFloatAttribute("x", &rot_x);
-                pOrientation->QueryFloatAttribute("y", &rot_y);
-                pOrientation->QueryFloatAttribute("z", &rot_z);
+                XMLElement* pOrientation = pCamera->FirstChildElement("Orientation");
+                if(pOrientation != nullptr){
+                    pOrientation->QueryFloatAttribute("x", &rot_x);
+                    pOrientation->QueryFloatAttribute("y", &rot_y);
+                    pOrientation->QueryFloatAttribute("z", &rot_z);
+                }
 
+                float focalLength = 1.0f; 
                 XMLElement* pFocalLength = pCamera->FirstChildElement("FocalLength");
-                float focalLength = pFocalLength->FloatText(1.0f);
+                if(pFocalLength != nullptr){
+                    focalLength = pFocalLength->FloatText(1.0f);
+                }
 
+                float fov = 90.0f;
                 XMLElement* pFoV = pCamera->FirstChildElement("FoV");
-                float fov = pFoV->FloatText(90.0f);
+                if(pFoV != nullptr){
+                    fov = pFoV->FloatText(90.0f);
+                }
 
+                float defocusAngle = 0.0f;
                 XMLElement* pDefocusAngle = pCamera->FirstChildElement("DefocusAngle");
-                float defocusAngle = pDefocusAngle->FloatText(0.0f);
-
+                if(pDefocusAngle != nullptr){
+                    defocusAngle = pDefocusAngle->FloatText(0.0f);
+                }
 
                 //TODO: Camera Method SetViewPort() to avoid passing it through here
                 m_Cameras.push_back(Camera({pos_x, pos_y, pos_z}, viewport, focalLength, defocusAngle, fov, {rot_x, rot_y, rot_z}));
@@ -142,91 +164,104 @@ Firefly::IObject* Firefly::World::ObjectFactory(const std::string& type, void* p
         printf("Constructing a Sphere!\n");
         
         //Position
-        XMLElement* pPosition = ((XMLElement*)pElement)->FirstChildElement("Position");
         float pos_x = 0.0f;
         float pos_y = 0.0f;
         float pos_z = 0.0f;
 
+        XMLElement* pPosition = ((XMLElement*)pElement)->FirstChildElement("Position");
+        if(pPosition != nullptr)
+        {
+            pPosition->QueryFloatAttribute("x", &pos_x);
+            pPosition->QueryFloatAttribute("y", &pos_y);
+            pPosition->QueryFloatAttribute("z", &pos_z);
+        }
+
         float radius = 0.0f; 
-
-        pPosition->QueryFloatAttribute("x", &pos_x);
-        pPosition->QueryFloatAttribute("y", &pos_y);
-        pPosition->QueryFloatAttribute("z", &pos_z);
-
         XMLElement* pRadius = ((XMLElement*)pElement)->FirstChildElement("Radius"); 
+        if(pRadius != nullptr){
+            radius = pRadius->FloatText(0.0f);
+        }
 
         XMLElement* pMatData = ((XMLElement*)pElement)->FirstChildElement("Material");
-        
-        IMaterial* pMaterial = nullptr;
-        if(pMatData){
+        std::shared_ptr<IMaterial> pMaterial = nullptr;
+        if(pMatData != nullptr){
             const char* matType = "FF_MAT_NULL";
             pMatData->QueryStringAttribute("type", &matType);
             pMaterial = MaterialFactory(matType, pMatData);
         }
         
-        pObject = new Sphere({pos_x, pos_y, pos_z}, pRadius->FloatText(0.0f), pMaterial);
-
+        pObject = new Sphere({pos_x, pos_y, pos_z}, radius, pMaterial);
     }
-
 
     return pObject;
 }
     
-Firefly::IMaterial* Firefly::World::MaterialFactory(const std::string& type, void* pElement)
+std::shared_ptr<Firefly::IMaterial> Firefly::World::MaterialFactory(const std::string& type, void* pElement)
 {
 
-    IMaterial* pMat = nullptr;
+    std::shared_ptr<IMaterial> pMat = nullptr;
     if(strcmp(type.c_str(), "Lambert") == 0){
 
         Colour albedo = {};
         XMLElement* pAlbedo = ((XMLElement*)pElement)->FirstChildElement("Albedo");
-        pAlbedo->QueryFloatAttribute("r", &albedo.r);
-        pAlbedo->QueryFloatAttribute("g", &albedo.g);
-        pAlbedo->QueryFloatAttribute("b", &albedo.b);
-        pAlbedo->QueryFloatAttribute("a", &albedo.a);
+        if(pAlbedo != nullptr){
+            pAlbedo->QueryFloatAttribute("r", &albedo.r);
+            pAlbedo->QueryFloatAttribute("g", &albedo.g);
+            pAlbedo->QueryFloatAttribute("b", &albedo.b);
+            pAlbedo->QueryFloatAttribute("a", &albedo.a);
+        }
 
         printf("Loading Lambert\tAlbedo: (%f, %f, %f, %f)\n", albedo.r, albedo.g, albedo.b, albedo.a);
-
-        pMat = new Lambert(albedo);
+        pMat = std::make_shared<Lambert>(albedo);
     }
+
     else if(strcmp(type.c_str(), "Metal") == 0){
 
         Colour albedo = {};
         XMLElement* pAlbedo = ((XMLElement*)pElement)->FirstChildElement("Albedo");
-        pAlbedo->QueryFloatAttribute("r", &albedo.r);
-        pAlbedo->QueryFloatAttribute("g", &albedo.g);
-        pAlbedo->QueryFloatAttribute("b", &albedo.b);
-        pAlbedo->QueryFloatAttribute("a", &albedo.a);
+        if(pAlbedo != nullptr){
+            pAlbedo->QueryFloatAttribute("r", &albedo.r);
+            pAlbedo->QueryFloatAttribute("g", &albedo.g);
+            pAlbedo->QueryFloatAttribute("b", &albedo.b);
+            pAlbedo->QueryFloatAttribute("a", &albedo.a);
+        }
 
         float fuzziness = 1.0f; 
         XMLElement* pFuzziness = ((XMLElement*)pElement)->FirstChildElement("Fuzziness");
-        pFuzziness->QueryFloatText(&fuzziness);
+        if(pFuzziness != nullptr){
+            pFuzziness->QueryFloatText(&fuzziness);
+        }
 
         printf("Loading Metal\tAlbedo: (%f, %f, %f, %f)\nfuzziness: %f", albedo.r, albedo.g, albedo.b, albedo.a, fuzziness);
 
-        pMat = new Metal(albedo, fuzziness);
+        pMat = std::make_shared<Metal>(albedo, fuzziness);
     }
     else if(strcmp(type.c_str(), "Dielectric") == 0){
 
         Colour tint = {};
         XMLElement* pTint = ((XMLElement*)pElement)->FirstChildElement("Tint");
-        pTint->QueryFloatAttribute("r", &tint.r);
-        pTint->QueryFloatAttribute("g", &tint.g);
-        pTint->QueryFloatAttribute("b", &tint.b);
-        pTint->QueryFloatAttribute("a", &tint.a);
+        if(pTint != nullptr){
+            pTint->QueryFloatAttribute("r", &tint.r);
+            pTint->QueryFloatAttribute("g", &tint.g);
+            pTint->QueryFloatAttribute("b", &tint.b);
+            pTint->QueryFloatAttribute("a", &tint.a);
+        }
 
         float ir  = 1.0f; 
         XMLElement* pIR = ((XMLElement*)pElement)->FirstChildElement("IR");
-        pIR->QueryFloatText(&ir);
+        if(pIR != nullptr){
+            pIR->QueryFloatText(&ir);
+        }
 
         float fresnel  = 1.0f; 
         XMLElement* pFresnel = ((XMLElement*)pElement)->FirstChildElement("Fresnel");
-        pFresnel->QueryFloatText(&fresnel);
-
+        if(pFresnel != nullptr){
+            pFresnel->QueryFloatText(&fresnel);
+        }
 
         printf("Loading Dielectric\tTint(%f, %f, %f, %f)\nIndex of Refraction: %f\nfresnel: %f\n", tint.r, tint.g, tint.g, tint.a, ir, fresnel);
 
-        pMat = new Dielectric(tint, ir, fresnel);
+        pMat = std::make_shared<Dielectric>(tint, ir, fresnel);
     }
 
     return pMat;

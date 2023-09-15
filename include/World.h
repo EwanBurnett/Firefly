@@ -14,6 +14,9 @@ namespace Firefly
     class World
     {
         public:
+            World();
+            ~World();
+
             void LoadFromFile(const std::string& filePath, const Viewport& viewport);
             const std::vector<IObject*>& GetScene() const; 
 
@@ -21,7 +24,7 @@ namespace Firefly
 
         private:
             IObject* ObjectFactory(const std::string& type, void* pElement);
-            IMaterial* MaterialFactory(const std::string& type, void* pElement);
+            std::shared_ptr<IMaterial> MaterialFactory(const std::string& type, void* pElement);
             std::vector<IObject*> m_Objects;
             std::vector<Camera> m_Cameras;
     };
