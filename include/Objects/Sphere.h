@@ -5,15 +5,17 @@
 #include "../Vector3.h"
 #include "../Ray3D.h"
 #include <cmath>
+#include "../Material.h"
+#include <memory>
 
 namespace Firefly
 {
     class Sphere : public IObject
     {
     public:
-        Sphere(const Vector3& position, float radius);
+        Sphere(const Vector3& position, float radius, std::shared_ptr<IMaterial> pMaterial = nullptr);
 
-        float Hit(const Ray3D& ray) override
+        bool Hit(const Ray3D& ray, Interval interval, HitResult& result) override
         {
             Vector3 oc = ray.Origin() - m_Position;
 
@@ -23,26 +25,44 @@ namespace Firefly
             float discriminant = (half_b * half_b) - a * c;
 
             if(discriminant < 0){
-                return -1.0f;
+                return false;
             }
-            else{
-                //return (-b - sqrt(discriminant)) / (2.0f * a);
-                return (-half_b - sqrt(discriminant)) / a;
-            }
-            
 
-            return (discriminant >= 0.0f);
+            //return (-half_b - sqrt(discriminant)) / a;
+            float sqrtD = sqrt(discriminant);
+
+            //Find the nearest root that lies within the acceptable range
+            float root = (-half_b - sqrtD) / a;
+            if(!interval.Surrounds(root)){
+                root = (-half_b + sqrtD) / a; 
+                if(!interval.Surrounds(root)){
+                    return false; 
+                }
+            }
+
+            result.t = root; 
+            result.Point = ray.At(root);
+            Vector3 outwardsNormal = (result.Point - m_Position) / m_Radius; 
+
+            result.SetFaceNormal(ray, outwardsNormal);
+            result.Material = m_Material; 
+
+        
+            return true;
         }
 
     private:
         Vector3 m_Position;
         float m_Radius; 
+        std::shared_ptr<IMaterial> m_Material;
 
     };
 
-    inline Sphere::Sphere(const Vector3& position, float radius){
+    inline Sphere::Sphere(const Vector3& position, float radius, std::shared_ptr<IMaterial> pMaterial){
         m_Position = position;
         m_Radius = radius;
+
+        m_Material = pMaterial;
     }
 }
 

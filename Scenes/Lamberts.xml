@@ -1,0 +1,80 @@
+<World name="Lamberts">
+
+    <Views>
+        <Camera id="Main Camera">
+            <Position x="0.0" y="0.0" z="0.0"/>
+            <Orientation x="0.0" y="0.0" z="-1.0"/>
+            <FocalLength>1.0</FocalLength>
+            <FoV>110</FoV>
+            <DefocusAngle>0</DefocusAngle>
+        </Camera>
+    </Views>
+
+    <!--Showcases full colours-->
+    <Scene>
+        <Object id="White" type="FF_SPHERE">
+            <Position x="-9.5" y="0" z="-10.0"/>
+            <Radius>2.5/</Radius>
+            <Material type="Lambert">
+                <Albedo r="1" g="1" b="1" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Red" type="FF_SPHERE">
+            <Position x="-4.5" y="3.25" z="-10.0"/>
+            <Radius>2.5</Radius>
+            <Material type="Lambert">
+                <Albedo r="1" g="0" b="0" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Green" type="FF_SPHERE">
+            <Position x="0" y="5.5" z="-10.0"/>
+            <Radius>2.5</Radius>
+            <Material type="Lambert">
+                <Albedo r="0" g="1" b="0" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Blue" type="FF_SPHERE">Lambert
+            <Position x="4.5" y="3.25" z="-10.0"/>
+            <Radius>2.5/</Radius>
+            <Material type="Lambert">
+                <Albedo r="0" g="0" b="1" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Cyan" type="FF_SPHERE">
+            <Position x="-4.5" y="-3.25" z="-10.0"/>
+            <Radius>2.5</Radius>
+            <Material type="Lambert">
+                <Albedo r="0" g="1" b="1" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Yellow" type="FF_SPHERE">
+            <Position x="0" y="-5.5" z="-10.0"/>
+            <Radius>2.5</Radius>
+            <Material type="Lambert">
+                <Albedo r="1" g="1" b="0" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Purple" type="FF_SPHERE">
+            <Position x="4.5" y="-3.25" z="-10.0"/>
+            <Radius>2.5/</Radius>
+            <Material type="Lambert">
+                <Albedo r="1" g="0" b="1" a="1"/>
+            </Material>
+        </Object>
+
+        <Object id="Black" type="FF_SPHERE">
+            <Position x="9.5" y="0" z="-10.0"/>
+            <Radius>2.5/</Radius>
+            <Material type="Lambert">
+                <Albedo r="0" g="0" b="0" a="1"/>
+            </Material>
+        </Object>
+
+    </Scene>
+</World>

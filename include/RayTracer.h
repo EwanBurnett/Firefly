@@ -13,29 +13,35 @@
 #include <cstdio>
 #include "Progressbar.h"
 #include "Timer.h"
+#include "Material.h"
 
 namespace Firefly{
 
+    //TODO: Move inline functions into RayTracer.cpp
     class RayTracer{
 
         public:
-            RayTracer(uint32_t samples = 1);
+            RayTracer(uint32_t samples = 1, uint32_t depth = 1);
             ~RayTracer();
             
             void Render(const World& world, const Camera& camera, Image& outputImage);
 
         private:
-            Colour RayColour(const Ray3D& ray, const World& world);
-            Ray3D GetRandomRay(const Vector3& center, uint32_t x, uint32_t y, const Vector3& pixelOrigin, const Vector3& pixelDeltaU, const Vector3& pixelDeltaV);
-            Vector3 PixelSampleSquare(const Vector3& pixelDeltaU, const Vector3& pixelDeltaV);
+            bool RayHit(const Ray3D& ray, Interval rayInterval, const World& world, HitResult& result);
+            Colour RayColour(const Ray3D& ray, uint32_t depth, const World& world);
+            Ray3D GetRandomRay(const Vector3& center, uint32_t x, uint32_t y, const Vector3& pixelOrigin, const Vector3& pixelDeltaU, const Vector3& pixelDeltaV, const Camera& camera);
+            Vector3 PixelSampleSquare(const Vector3& pixelDeltaU, const Vector3& pixelDeltaV); 
+            Vector3 DefocusDiskSample(const Camera& camera);
 
             RNG m_RNG;
             uint32_t m_Samples; 
+            uint32_t m_Depth;
     };
 
 
-    inline RayTracer::RayTracer(uint32_t samples){
+    inline RayTracer::RayTracer(uint32_t samples, uint32_t depth){
         m_Samples = samples;
+        m_Depth = depth;
     }
 
     inline RayTracer::~RayTracer(){
@@ -74,8 +80,8 @@ namespace Firefly{
                 auto pixelDeltaV = camera.PixelDeltaV(height);
 
                 for(uint32_t i = 0; i < m_Samples; i++){
-                    Ray3D ray = GetRandomRay(camera.GetPosition(), x, y, pixelOrigin, pixelDeltaU, pixelDeltaV);
-                    Colour rayColour = RayColour(ray, world);
+                    Ray3D ray = GetRandomRay(camera.GetPosition(), x, y, pixelOrigin, pixelDeltaU, pixelDeltaV, camera);
+                    Colour rayColour = RayColour(ray, m_Depth, world);
 
                     colour.r += rayColour.r;
                     colour.g += rayColour.g;
@@ -83,11 +89,22 @@ namespace Firefly{
                     colour.a += rayColour.a;
                 }
 
+                //TODO: Encapsulate in a WriteColour() function
                 colour.r *= scale;
                 colour.g *= scale;
                 colour.b *= scale;
                 colour.a *= scale;
                 
+                //Apply Gamma Correction
+                auto LinearToGamma = [&](float linear){
+                    return sqrt(linear);
+                };
+                
+                colour.r = LinearToGamma(colour.r);
+                colour.g = LinearToGamma(colour.g);
+                colour.b = LinearToGamma(colour.b);
+                colour.a = LinearToGamma(colour.a);
+
                 Interval iv(0.0f, 0.999f);
                 *pColour = ColourRGBA(
                     (uint8_t)(255.99f * iv.Clamp(colour.r)),
@@ -105,22 +122,56 @@ namespace Firefly{
 
     }
 
-    inline Colour RayTracer::RayColour(const Ray3D& ray, const World& world){
+            
+    inline bool RayTracer::RayHit(const Ray3D& ray, Interval rayInterval, const World& world, HitResult& result){
+ 
+        float nearest = rayInterval.Max(); 
+        HitResult tempResult = {};
+
+        bool hitAnything = false;
+
         for(auto& obj : world.GetScene()){
-            float t = (obj->Hit(ray));
-            if(t > 0.0f){
-                Vector3 v = (ray.At(t) - Vector3(0.0f, 0.0f, -1.0f));
-                Vector3 N = Vector3::Normalize(v);
-                Colour c = {
-                    (0.5f * (N.x + 1.0f)),
-                    (0.5f * (N.y + 1.0f)),
-                    (0.5f * (N.z + 1.0f)),
-                    1.0f
-                };
-                return c;
+            if(obj->Hit(ray, {rayInterval.Min(), nearest}, tempResult)){
+                hitAnything = true; 
+                nearest = tempResult.t; 
+                result = tempResult;
             }
         }
+
+
+        return hitAnything; 
+    }
+    
+    inline Colour RayTracer::RayColour(const Ray3D& ray, uint32_t depth, const World& world){
+        //Limit the recursive depth
+        if(depth <= 0){
+            return Colour{};
+        }
+
+        HitResult result {};
+        Interval acceptanceRange = {0.001f, Infinity};
+        if(RayHit(ray, acceptanceRange, world, result))
+        {                 
+            Ray3D scattered = {};
+            Colour attenuation = {};
+            if(result.Material != nullptr){
+                if(result.Material->Scatter(ray, result, attenuation, scattered)){
+                    return attenuation * RayColour(scattered, depth - 1, world);
+                }
+                return Colour{};
+            }
+             
+            Colour c = {
+                    (0.5f * (result.Normal.x + 1.0f)),
+                    (0.5f * (result.Normal.y + 1.0f)),
+                    (0.5f * (result.Normal.z + 1.0f)),
+                    1.0f
+                };
+            return c;
+                
+        }
         
+        //If nothing was hit, Render the skybox Gradient.
         Vector3 dir = ray.Direction();
         
         auto k = 0.5f * (dir.y + 1.0f);
@@ -135,15 +186,23 @@ namespace Firefly{
         };
     }
 
-    inline Ray3D RayTracer::GetRandomRay(const Vector3& center, uint32_t x, uint32_t y, const Vector3& pixelOrigin, const Vector3& pixelDeltaU, const Vector3& pixelDeltaV){
+    inline Ray3D RayTracer::GetRandomRay(const Vector3& center, uint32_t x, uint32_t y, const Vector3& pixelOrigin, const Vector3& pixelDeltaU, const Vector3& pixelDeltaV, const Camera& camera){
         Vector3 pixelCenter = pixelOrigin + (pixelDeltaU * x) + (pixelDeltaV * y);
         Vector3 pixelSample = pixelCenter + PixelSampleSquare(pixelDeltaU, pixelDeltaV);
 
-        Vector3 rayOrigin = center; 
+        Vector3 rayOrigin = (camera.GetDefocusAngle() <= 0.0f) ? center : DefocusDiskSample(camera);
         Vector3 rayDir = pixelSample - rayOrigin;
         rayDir = Vector3::Normalize(rayDir);
 
         return Ray3D(rayOrigin, rayDir);
+    }
+
+    inline Vector3 RayTracer::DefocusDiskSample(const Camera& camera){
+        Vector3 point = {
+           m_RNG.RandomFloat(), m_RNG.RandomFloat(), 0.0f 
+        };
+
+        return camera.GetPosition() + (point.x * camera.GetDefocusDiskU()) + (point.y * camera.GetDefocusDiskV()); 
     }
 
     inline Vector3 RayTracer::PixelSampleSquare(const Vector3& pixelDeltaU, const Vector3& pixelDeltaV){

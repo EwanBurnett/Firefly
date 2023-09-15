@@ -9,6 +9,7 @@ namespace Firefly
     class Viewport
     {
         public:
+            friend class Camera;
             Viewport();
             Viewport(const uint16_t width, const uint16_t height);
 
@@ -17,9 +18,6 @@ namespace Firefly
 
             Vector3 ViewportU() const;
             Vector3 ViewportV() const;
-
-            Vector3 TopLeft(const Vector3& origin, const float FocalLength) const;
-
 
         private:
             float m_AspectRatio;
@@ -55,9 +53,5 @@ namespace Firefly
         return {0.0f, -m_ViewportHeight, 0.0f};
     }
 
-    inline Vector3 Viewport::TopLeft(const Vector3& origin, const float FocalLength)const{
-        Vector3 o = origin;
-        return o - Vector3{0.0f, 0.0f, FocalLength} - (ViewportU() / 2.0f) - (ViewportV() / 2.0f);
-    }
 }
 #endif

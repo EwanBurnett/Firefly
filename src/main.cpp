@@ -22,10 +22,11 @@ int main(int argc, char** argv)
     printf("Firefly v%d.%da\n", FIREFLY_VERSION_MAJOR, FIREFLY_VERSION_MINOR);
     
 
-    uint16_t width = 0;
-    uint16_t height = 0;
+    uint16_t width = 100;
+    uint16_t height = 100;
 
     uint32_t numSamples = 1;
+    uint32_t depth = 1;
 
     char* fileName = __TIME__;
     char* sceneFile = "";
@@ -52,32 +53,54 @@ int main(int argc, char** argv)
             else if(strcmp(argv[i], "-a") == 0){
                 numSamples = atoi(argv[i + 1]);
             }
+            
+            else if(strcmp(argv[i], "-d") == 0){
+                depth = atoi(argv[i + 1]);
+            }
         }        
     }
     
-    if(width == 0){
-        throw std::runtime_error("Width was 0!\n");
-    }
-    if(height == 0){
-        throw std::runtime_error("Height was 0!\n");
+    //Validate input arguments
+    {
+        if(width == 0){
+            throw std::runtime_error("Width was 0!\nImage Width must be greater than 0.\n");
+        }
+        if(height == 0){
+            throw std::runtime_error("Height was 0!\nImage Height must be Greater than 0.\n");
+        }
+
+        if(strcmp(sceneFile, "") == 0){
+            throw std::runtime_error("No Scene was Loaded!\nPlease Specify a Scene File with the -s [filepath] flag.\n");
+        }
+
+        if(numSamples < 1){
+            numSamples = 1;
+        }
+
+        if(depth < 1){
+            depth = 1;
+        }
     }
 
-    if(strcmp(sceneFile, "") == 0){
-        throw std::runtime_error("No Scene was Loaded!\nPlease Specify a Scene File with the -s [filepath] flag.\n");
-    }
 
-    if(numSamples < 1){
-        numSamples = 1;
-    }
-
-    Firefly::World world;
-    world.LoadFromFile(sceneFile);
     Firefly::Viewport vp(width, height);
-    Firefly::Camera camera({0.0f, 0.0f, 0.0f}, vp);
+    Firefly::World world;
+    world.LoadFromFile(sceneFile, vp);
+
+    Firefly::Camera camera;
+    {
+        auto cameras = world.GetCameras();
+        if(cameras.empty()){
+            camera = {{0.0f, 0.0f, 0.0f}, vp};
+        }
+        else{
+            camera = cameras[0]; //Use the Default camera from the World.
+        }
+    }
     Firefly::Image img(width, height, fileName);
-    Firefly::RayTracer rt(10);
+    Firefly::RayTracer rt(numSamples, depth);
     rt.Render(world, camera, img);
 
-    Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());
+    //Firefly::Exporter::ExportToPPM(fileName, width, height, img.Pixels());
     Firefly::Exporter::ExportToPNG(fileName, width, height, img.Pixels());
 }
