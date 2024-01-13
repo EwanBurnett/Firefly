@@ -1,14 +1,9 @@
-#include <cstdio>
-#include <stb_image.h>
-#include <thread>
-#include "../include/Progressbar.h"
-#include "../include/RNG.h"
-#include "../include/Exporter.h"
-#include "../include/Timer.h"
-#include "../include/Viewport.h"
-#include "../include/Camera.h"
-#include "../include/Ray3D.h"
-#include "../include/RayTracer.h"
+﻿#include <cstdio>
+#include <stdexcept>
+#include "../include/Viewer/Window.h"
+
+#define xstr(a) str(a)
+#define str(s) #s
 
 //USAGE
 //Firefly:
@@ -17,8 +12,19 @@
 
 int main(int argc, char** argv)
 {
-    printf("Firefly v%d.%da\n", FIREFLY_VERSION_MAJOR, FIREFLY_VERSION_MINOR);
-    
+    glfwInit();     //TODO: encapsulate GLFW initialisation / termination within the Window class.
+
+    Firefly::Window window; 
+    if (!window.Create(800, 500, u8"Firefly v" xstr(FIREFLY_VERSION_MAJOR) "." xstr(FIREFLY_VERSION_MINOR))) {
+        throw std::runtime_error("Failed to create Window!");
+    }
+
+    while (window.PollEvents()) {
+
+    }
+
+    glfwTerminate(); 
+    /*
     uint16_t width = 0;
     uint16_t height = 0;
 
@@ -93,4 +99,5 @@ int main(int argc, char** argv)
 
     Firefly::Exporter::ExportToPPM(fileName, width, height, img);
     Firefly::Exporter::ExportToPNG(fileName, width, height, img);
+    */
 }
