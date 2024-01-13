@@ -1,6 +1,7 @@
 ﻿#include <cstdio>
 #include <stdexcept>
 #include "../include/Viewer/Window.h"
+#include "../include/Viewer/Viewer.h"
 
 #define xstr(a) str(a)
 #define str(s) #s
@@ -14,13 +15,19 @@ int main(int argc, char** argv)
 {
     glfwInit();     //TODO: encapsulate GLFW initialisation / termination within the Window class.
 
-    Firefly::Window window; 
-    if (!window.Create(800, 500, u8"Firefly v" xstr(FIREFLY_VERSION_MAJOR) "." xstr(FIREFLY_VERSION_MINOR))) {
-        throw std::runtime_error("Failed to create Window!");
+    try {
+        Firefly::Window window;
+        if (!window.Create(800, 500, u8"Firefly v" xstr(FIREFLY_VERSION_MAJOR) "." xstr(FIREFLY_VERSION_MINOR))) {
+            throw std::runtime_error("Failed to create Window!");
+        }
+
+        Firefly::Viewer viewer;
+        viewer.Init(&window);
+        while (window.PollEvents()) {
+
+        }
     }
-
-    while (window.PollEvents()) {
-
+    catch (std::exception& e) {
     }
 
     glfwTerminate(); 

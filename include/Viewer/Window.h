@@ -2,8 +2,10 @@
 #define _FIREFLY_WINDOW_H
 
 #include <GLFW/glfw3.h>
+#include <vector> 
 
 #include <cstdint> 
+
 namespace Firefly {
     class Window {
     public: 
@@ -20,6 +22,9 @@ namespace Firefly {
         bool PollEvents(); 
 
         bool SetSize(const uint16_t width, const uint16_t height);
+
+        std::vector<const char*> GetRequiredInstanceExtensions() const;
+        GLFWwindow* GLFWHandle() const; 
 
     private:
         uint16_t m_Width;   //TODO: Replace with a Vector2 struct

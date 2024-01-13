@@ -25,7 +25,7 @@ FetchContent_MakeAvailable(stb glfw)
 
 
 # Build the project
-add_executable("Firefly" src/main.cpp "include/Viewer/Viewer.h" "include/Viewer/Window.h" "src/Viewer/Viewer.cpp" "src/Viewer/Window.cpp")
+add_executable("Firefly" src/main.cpp "include/Viewer/Viewer.h" "include/Viewer/Window.h" "src/Viewer/Viewer.cpp" "src/Viewer/Window.cpp" "include/Viewer/Engine.h" "src/Viewer/Engine.cpp" "include/Viewer/VkHelpers.h" "src/Viewer/VkHelpers.cpp")
 target_include_directories("Firefly" PRIVATE  ${stb_SOURCE_DIR})
 target_link_libraries("Firefly" Threads::Threads Vulkan::Vulkan glfw)
 target_compile_definitions("Firefly" PUBLIC FIREFLY_VERSION_MAJOR=${Firefly_VERSION_MAJOR} FIREFLY_VERSION_MINOR=${Firefly_VERSION_MINOR})

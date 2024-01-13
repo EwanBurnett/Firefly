@@ -22,6 +22,7 @@ bool Firefly::Window::Create(const uint16_t width, const uint16_t height, const 
     m_Title = title; 
 
     printf("[Viewer]\tCreating window %s [%d x %d]\n", m_Title, m_Width, m_Height);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);   //Since we're rendering with Vulkan, specify no API. 
     m_pHandle = glfwCreateWindow(m_Width, m_Height, m_Title, nullptr, nullptr);
     if (!m_pHandle) {
         return false; 
@@ -55,4 +56,23 @@ bool Firefly::Window::SetSize(const uint16_t width, const uint16_t height)
 
     glfwSetWindowSize(m_pHandle, m_Width, m_Height); 
     return true; 
+}
+
+std::vector<const char*> Firefly::Window::GetRequiredInstanceExtensions() const
+{
+    uint32_t numExtensions = 0; 
+    std::vector<const char*> outExtensions;
+
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&numExtensions);
+
+    for (uint32_t i = 0; i < numExtensions; i++) {
+        outExtensions.push_back(glfwExtensions[i]);
+    }
+
+    return outExtensions; 
+}
+
+GLFWwindow* Firefly::Window::GLFWHandle() const
+{
+    return m_pHandle;
 }

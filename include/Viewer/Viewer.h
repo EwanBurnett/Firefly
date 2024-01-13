@@ -1,11 +1,21 @@
 #ifndef _FIREFLY_VIEWER_H
 #define _FIREFLY_VIEWER_H
 
-#include <vulkan/vulkan.h>
+#include "Engine.h"
 
 namespace Firefly {
-    class Viewer {
+    class Window; 
 
+    class Viewer {
+    public: 
+        Viewer(); 
+        ~Viewer();
+
+        void Init(const Window* pWindow); 
+        void Shutdown(); 
+
+    private: 
+        Engine m_Engine; 
     };
 }
 
