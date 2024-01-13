@@ -5,35 +5,10 @@
 #include "Vector3.h"
 #include "ColourRGBA.h"
 #include "Ray3D.h"
-#include "World.h"
-#include "HitResult.h"
-#include "Image.h"
+
 #include <cstdio>
-#include <future>
 
 namespace Firefly{
-
-    class World;
-
-    class RayTracer{
-        public:
-            RayTracer();
-            ~RayTracer();
-
-            void Render(const World& world);
-            void Update(World& world, float deltaTime);
-
-        private:
-            void ScanLine(size_t scanLine, std::vector<char>& image); 
-            ColourRGBA RayColour(const Ray3D& ray, const World& world); 
-            bool RayCastHit(const Ray3D& ray, HitResult& result, const World& world);
-            
-            World* m_World; 
-            std::vector<Image> m_Images;
-            std::vector<std::future<void>> m_Exports; 
-    };
-
-
 
     inline float HitSphere(const Vector3& center, float radius, const Ray3D& ray)
     {
@@ -89,6 +64,5 @@ namespace Firefly{
             (uint8_t)(((1.0f - k) * a.a + k * b.a)),
         };
     }
-
 }
 #endif
