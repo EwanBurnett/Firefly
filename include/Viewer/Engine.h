@@ -11,6 +11,9 @@ namespace Firefly {
     public: 
         void Init(const Window* window);
         void Shutdown(); 
+
+        void BeginFrame(); 
+        void EndFrame(); 
     private:
         VkInstance m_Instance; 
         VkPhysicalDevice m_PhysicalDevice; 
@@ -28,7 +31,16 @@ namespace Firefly {
         std::vector<std::pair<size_t, VkQueue>> m_GraphicsQueues;
         std::vector<std::pair<size_t, VkQueue>> m_PresentationQueues;
 
+        VkCommandPool m_CommandPool;
+        VkCommandBuffer m_CmdBuffer;    //Handles presentation
 
+        VkRenderPass m_RenderPass; 
+        std::vector<VkFramebuffer> m_FrameBuffers;
+
+        VkFence m_RenderFence; 
+        VkSemaphore m_ImageAvailable; 
+        VkSemaphore m_RenderFinished;
+        uint32_t m_FrameIndex; 
 #ifdef _DEBUG
         VkDebugUtilsMessengerEXT m_DebugLogger; 
 #endif

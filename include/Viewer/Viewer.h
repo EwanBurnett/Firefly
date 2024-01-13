@@ -14,6 +14,9 @@ namespace Firefly {
         void Init(const Window* pWindow); 
         void Shutdown(); 
 
+        void BeginFrame(); 
+        void EndFrame(); 
+
     private: 
         Engine m_Engine; 
     };

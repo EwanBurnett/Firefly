@@ -84,8 +84,18 @@ void Firefly::Engine::Init(const Window* pWindow)
         vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapchainImageCount, m_SwapchainImages.data());
 
         m_SwapchainImageViews = Helpers::CreateImageViews(m_Device, m_SwapchainImages, m_SwapchainFormat.format, nullptr);
-
     }
+
+    //Create our Command Pool
+    m_CommandPool = Helpers::CreateCommandPool(m_Device, m_GraphicsQueues[0].first);
+    m_CmdBuffer = Helpers::CreateCommandBuffer(m_Device, m_CommandPool);
+
+    m_RenderFence = Helpers::CreateSyncFence(m_Device); 
+    m_ImageAvailable = Helpers::CreateSyncSemaphore(m_Device);
+    m_RenderFinished = Helpers::CreateSyncSemaphore(m_Device); 
+
+    m_RenderPass = Helpers::CreateRenderPass(m_Device, m_SwapchainFormat.format); 
+    m_FrameBuffers = Helpers::CreateFrameBuffers(m_Device, m_SwapchainImageViews.size(), m_SwapchainExtents, m_SwapchainImageViews.data(), m_RenderPass); 
 
 }
 
@@ -96,8 +106,86 @@ void Firefly::Engine::Shutdown()
     Helpers::DestroySwapChain(m_Device, m_Swapchain);
     Helpers::DestroyLogicalDevice(m_Device, nullptr);
     Helpers::DestroyWindowSurface(m_Instance, m_Surface, nullptr);
-#ifdef DEBUG
+#ifdef _DEBUG
     Helpers::DestroyDebugLogger(m_Instance, m_DebugLogger, nullptr);
 #endif
     Helpers::DestroyInstance(m_Instance, nullptr);
+}
+
+void Firefly::Engine::BeginFrame()
+{
+    //Wait for the current frame 
+    vkWaitForFences(m_Device, 1, &m_RenderFence, VK_TRUE, UINT64_MAX);
+    vkResetFences(m_Device, 1, &m_RenderFence);
+
+    vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, m_ImageAvailable, VK_NULL_HANDLE, &m_FrameIndex);
+    vkResetCommandBuffer(m_CmdBuffer, 0);
+
+    //Begin the Command Buffer
+    VkCommandBufferBeginInfo beginInfo = {}; 
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO; 
+    beginInfo.pNext = nullptr; 
+    beginInfo.pInheritanceInfo = nullptr;
+    beginInfo.flags = 0;
+
+    vkBeginCommandBuffer(m_CmdBuffer, &beginInfo);
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.pNext = nullptr;
+    renderPassBeginInfo.renderPass = m_RenderPass;
+    renderPassBeginInfo.framebuffer = m_FrameBuffers[m_FrameIndex];
+    renderPassBeginInfo.renderArea.offset = { 0, 0 };
+    renderPassBeginInfo.renderArea.extent = m_SwapchainExtents;
+
+    //VkClearValue clearColour = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+    VkClearValue clearColour = { {{52.0f / 255.99f, 49.0f / 255.99f, 49.0f / 255.99, 1.0f}} };
+    renderPassBeginInfo.clearValueCount = 1;
+    renderPassBeginInfo.pClearValues = &clearColour;
+
+    vkCmdBeginRenderPass(m_CmdBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void Firefly::Engine::EndFrame()
+{
+    vkCmdEndRenderPass(m_CmdBuffer);
+    vkEndCommandBuffer(m_CmdBuffer);
+
+    //Submit the recorded commands
+    VkSemaphore waitFor[] = { m_ImageAvailable };
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitFor;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_CmdBuffer;
+
+    VkSemaphore signalSemaphores[] = { m_RenderFinished };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if (vkQueueSubmit(m_GraphicsQueues[0].second, 1, &submitInfo, m_RenderFence) != VK_SUCCESS) {
+        //throw std::runtime_error("Failed to submit command buffer!\n");
+    }
+
+
+    //Present 
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR SwapChains[] = { m_Swapchain };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = SwapChains;
+    presentInfo.pImageIndices = &m_FrameIndex;
+    presentInfo.pResults = nullptr;
+
+    vkQueuePresentKHR(m_PresentationQueues[0].second, &presentInfo);
+
 }

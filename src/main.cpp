@@ -24,6 +24,9 @@ int main(int argc, char** argv)
         Firefly::Viewer viewer;
         viewer.Init(&window);
         while (window.PollEvents()) {
+            viewer.BeginFrame(); 
+
+            viewer.EndFrame(); 
 
         }
     }

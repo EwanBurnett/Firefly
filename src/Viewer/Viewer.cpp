@@ -16,3 +16,13 @@ void Firefly::Viewer::Init(const Window* pWindow)
 void Firefly::Viewer::Shutdown()
 {
 }
+
+void Firefly::Viewer::BeginFrame()
+{
+    m_Engine.BeginFrame(); 
+}
+
+void Firefly::Viewer::EndFrame()
+{
+    m_Engine.EndFrame(); 
+}
